@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.cmapp"
+    namespace = "com.lab4"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.cmapp"
+        applicationId = "com.lab4"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
