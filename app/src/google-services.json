@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "565754501026",
+    "project_id": "hogwarts-apprentice",
+    "storage_bucket": "hogwarts-apprentice.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:565754501026:android:071c3e9f662ce8655e04fb",
+        "android_client_info": {
+          "package_name": "com.cmapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCksOYpqEbo4txqg6uYn6FPXijv_GLW13U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
