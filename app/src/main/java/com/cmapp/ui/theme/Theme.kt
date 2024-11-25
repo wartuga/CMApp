@@ -1,4 +1,4 @@
-package com.lab4.ui.theme
+package com.cmapp.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

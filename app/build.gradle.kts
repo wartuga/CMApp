@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.lab4"
+    namespace = "com.cmapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.lab4"
+        applicationId = "com.cmapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -52,6 +52,9 @@ android {
 }
 
 dependencies {
+    // Navigation dependency
+    implementation("androidx.navigation:navigation-compose:2.4.2")
+
     // Camera permissions
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc02")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc02")
@@ -78,6 +81,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx:21.0.0")
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.firebaseui:firebase-ui-database:8.0.2")
+    implementation(libs.androidx.navigation.compose)
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
