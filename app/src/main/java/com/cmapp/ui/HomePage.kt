@@ -14,14 +14,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cmapp.R
 import com.cmapp.ui.screens.HomeScreen
 import com.cmapp.ui.theme.CMAppTheme
-import com.cmapp.ui.viewmodels.PotterViewModel
+import com.cmapp.ui.viewmodels.UnsplashViewModel
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier) {
     Scaffold (
         bottomBar = { NavigationBar(modifier) }
     ) { padding ->
-        val viewModel: PotterViewModel = viewModel()
+        val viewModel: UnsplashViewModel = viewModel()
         Box(modifier = modifier.padding(padding).fillMaxSize()){
             Image(
                 painter = painterResource(R.drawable.bg),

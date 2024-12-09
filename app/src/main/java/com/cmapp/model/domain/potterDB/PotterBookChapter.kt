@@ -10,27 +10,3 @@ data class PotterBookChapter (
     val relationships: Book,
     val links: SelfUri
 )
-
-@Serializable
-data class ChapterAttributes (
-    val slug: String,
-    val order: Int,
-    val summary: String,
-    val title: String
-)
-
-@Serializable
-data class Book (
-    val book: BooksData
-)
-
-@Serializable
-data class BooksData (
-    val data: DataInfo
-)
-
-@Serializable
-data class DataInfo (
-    val id: String,
-    val type: String
-)

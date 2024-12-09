@@ -24,7 +24,7 @@ class PotterViewModel: ViewModel() {
         private set
 
     init {
-        getSpell("4a7478e4-307a-428b-9af2-c502f996a05c")
+        getPotions()
     }
 
     private fun getBooks(){

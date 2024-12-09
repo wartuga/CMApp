@@ -39,7 +39,7 @@ fun NavigationBar(modifier: Modifier){
                 Image(
                     painter = painterResource(img),
                     contentDescription = str,
-                    modifier = modifier.padding(10.dp).size(40.dp)
+                    modifier = modifier.padding(8.dp).size(35.dp)
                 )
             }
         }

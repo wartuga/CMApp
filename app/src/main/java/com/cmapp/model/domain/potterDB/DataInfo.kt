@@ -3,9 +3,7 @@ package com.cmapp.model.domain.potterDB
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PotterSpell (
+data class DataInfo (
     val id: String,
-    val type: String,
-    val attributes: SpellAttributes,
-    val links: SelfUri
+    val type: String
 )

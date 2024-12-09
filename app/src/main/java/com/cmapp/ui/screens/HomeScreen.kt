@@ -6,16 +6,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.cmapp.ui.states.PotterUiState
+import com.cmapp.ui.states.UnsplashUiState
 
 @Composable
 fun HomeScreen(
-    uiState: PotterUiState,
+    uiState: UnsplashUiState,
     modifier: Modifier
 ) {
     when {
-        uiState is PotterUiState.Loading -> LoadingScreen()
-        uiState is PotterUiState.Success -> {
+        uiState is UnsplashUiState.Loading -> LoadingScreen()
+        uiState is UnsplashUiState.Success -> {
             Column(modifier = modifier.fillMaxSize()) {
                 Text(
                     text = "Hello Android",
@@ -25,6 +25,6 @@ fun HomeScreen(
 
             }
         }
-        uiState is PotterUiState.Error -> ErrorScreen()
+        uiState is UnsplashUiState.Error -> ErrorScreen()
     }
 }
