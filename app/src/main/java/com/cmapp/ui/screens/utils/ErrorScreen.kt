@@ -1,4 +1,4 @@
-package com.cmapp.ui.screens
+package com.cmapp.ui.screens.utils
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
