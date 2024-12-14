@@ -5,16 +5,19 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewWandScreen">
+      <SelectionState runConfigName="SelectionScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="GreetingPreview">
+      <SelectionState runConfigName="FriendsListScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewWandScreen (1)">
+      <SelectionState runConfigName="PreviewLearnedScreen">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MapScreenPreview">
+      <SelectionState runConfigName="PreviewLockedScreen">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="PreviewUnlockedScreen">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

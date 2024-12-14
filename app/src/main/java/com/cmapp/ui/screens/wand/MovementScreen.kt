@@ -15,14 +15,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cmapp.R
+import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlin.random.Random
 import kotlin.random.nextInt
 
 @Composable
-fun WandScreenContent(modifier: Modifier) {
+fun MovementScreen(
+    modifier: Modifier
+) {
+    ScreenSkeleton(
+        composable = { MovementScreenContent(modifier) },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun MovementScreenContent(modifier: Modifier) {
     // receber varinha do user ou ir buscar a varinha do user
     val seconds = 23 // tempo do feitiço
     Column(
@@ -80,4 +92,12 @@ fun WandScreenContent(modifier: Modifier) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewWandScreen() {
+    MovementScreen(
+        modifier = Modifier
+    )
 }

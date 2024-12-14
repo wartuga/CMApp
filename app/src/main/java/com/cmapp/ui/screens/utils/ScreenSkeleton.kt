@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.cmapp.R
-import com.cmapp.ui.NavigationBar
 
 @Composable
 fun ScreenSkeleton(

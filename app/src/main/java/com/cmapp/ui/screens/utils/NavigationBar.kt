@@ -1,4 +1,4 @@
-package com.cmapp.ui
+package com.cmapp.ui.screens.utils
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
