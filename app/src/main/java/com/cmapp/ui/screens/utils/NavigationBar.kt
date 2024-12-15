@@ -15,32 +15,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.cmapp.R
+import com.cmapp.navigation.Screens
 
 @Composable
-fun NavigationBar(modifier: Modifier){
+fun NavigationBar(modifier: Modifier, navController: NavController?){
     Row(
-        modifier = modifier.fillMaxWidth().background(Color.Gray),
+        modifier = modifier.fillMaxWidth().background(Color.Black).padding(bottom = 32.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         mapOf(
-            "wand" to R.drawable.wand_icon,
-            "potions" to R.drawable.potion_icon,
-            "social" to R.drawable.social_icon,
-            "profile" to R.drawable.profile_icon
-        ).forEach { (str, img) ->
-            Button(
-                onClick = {},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White
-                )) {
-                Image(
-                    painter = painterResource(img),
-                    contentDescription = str,
-                    modifier = modifier.padding(8.dp).size(35.dp)
-                )
+            Screens.Spells.route to R.drawable.wand_icon,
+            Screens.Potions.route to R.drawable.potion_icon,
+            Screens.Social.route to R.drawable.social_icon,
+            Screens.Profile.route to R.drawable.profile_icon
+                ).forEach { (route, img) ->
+                    Button(
+                        onClick = {navController!!.navigate(route){
+                            popUpTo(navController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }},
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.White
+                        )) {
+                            Image(
+                                painter = painterResource(img),
+                                contentDescription = "",
+                                modifier = modifier.padding(6.dp).size(30.dp)
+                            )
             }
         }
     }

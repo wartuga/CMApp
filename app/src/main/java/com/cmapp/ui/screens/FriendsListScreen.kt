@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -24,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.RemoveButton
 import com.cmapp.ui.screens.utils.ScreenSkeleton
@@ -31,9 +31,11 @@ import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
 fun FriendsListScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController?
 ) {
     ScreenSkeleton(
+        navController = navController,
         composable = { FriendsListScreenContent(modifier) },
         modifier = modifier
     )
@@ -126,5 +128,5 @@ private fun FriendsListScreenContent(modifier: Modifier) {
 @Preview
 @Composable
 fun FriendsListScreenPreview() {
-    FriendsListScreen(Modifier)
+    FriendsListScreen(Modifier, null)
 }

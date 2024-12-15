@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 
@@ -25,8 +26,9 @@ const val MAP_SIZE = 330
 const val PADDING = 5
 
 @Composable
-fun MapScreen(modifier: Modifier) {
+fun MapScreen(modifier: Modifier = Modifier, navController: NavHostController?) {
     ScreenSkeleton(
+        navController = navController,
         composable = {
             MapScreenContent(modifier)
         },
@@ -121,5 +123,5 @@ private fun MapScreenContent(modifier: Modifier) {
 @Preview
 @Composable
 fun MapScreenPreview() {
-    MapScreen(modifier = Modifier)
+    MapScreen(modifier = Modifier, null)
 }

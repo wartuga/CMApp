@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.ui.screens.utils.RemoveButton
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SpellCard
@@ -25,9 +26,11 @@ import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
 fun LearnedScreen(
-    modifier: Modifier
+    modifier: Modifier,
+    navController: NavHostController?
 ) {
     ScreenSkeleton(
+        navController = navController,
         composable = { LearnedScreenContent(modifier) },
         modifier = modifier
     )
@@ -81,5 +84,5 @@ fun LearnedScreenContent(modifier: Modifier) {
 @Preview
 @Composable
 fun PreviewLearnedScreen() {
-    LearnedScreen(Modifier)
+    LearnedScreen(Modifier, null)
 }

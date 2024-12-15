@@ -9,15 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavHostController
 import com.cmapp.R
 
 @Composable
 fun ScreenSkeleton(
+    navController: NavHostController?,
     composable: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold (
-        bottomBar = { NavigationBar(modifier) }
+        bottomBar = { NavigationBar(modifier, navController) }
     ) { padding ->
         Box(modifier = modifier.padding(padding).fillMaxSize()){
             Image(

@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlin.random.Random
@@ -25,9 +26,11 @@ import kotlin.random.nextInt
 
 @Composable
 fun MovementScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController?
 ) {
     ScreenSkeleton(
+        navController = navController,
         composable = { MovementScreenContent(modifier) },
         modifier = modifier
     )
@@ -52,7 +55,9 @@ private fun MovementScreenContent(modifier: Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.timer),
                 contentDescription = "clock",
-                modifier = Modifier.size(30.dp).padding(end = 4.dp),
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(end = 4.dp),
                 colorFilter = ColorFilter.tint(Color.White)
             )
             Text(
@@ -62,7 +67,9 @@ private fun MovementScreenContent(modifier: Modifier) {
             )
         }
         Row(
-            modifier = modifier.padding(16.dp).fillMaxWidth(),
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             val mov1 = Random.nextInt(1..5)
@@ -98,6 +105,7 @@ private fun MovementScreenContent(modifier: Modifier) {
 @Composable
 fun PreviewWandScreen() {
     MovementScreen(
-        modifier = Modifier
+        modifier = Modifier,
+        null
     )
 }

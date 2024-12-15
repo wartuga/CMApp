@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SwapButton
@@ -30,9 +31,11 @@ import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
 fun SelectionScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController?
 ) {
     ScreenSkeleton(
+        navController = navController,
         composable = {
             SelectionScreenContent(modifier)
         },
@@ -120,5 +123,5 @@ private fun SelectionScreenContent(modifier: Modifier) {
 @Preview
 @Composable
 fun SelectionScreenPreview() {
-    SelectionScreen(modifier = Modifier)
+    SelectionScreen(modifier = Modifier, null)
 }

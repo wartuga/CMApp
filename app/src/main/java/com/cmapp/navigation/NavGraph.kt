@@ -5,6 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.cmapp.ui.HomePage
+import com.cmapp.ui.screens.FriendsListScreen
+import com.cmapp.ui.screens.MapScreen
+import com.cmapp.ui.screens.wand.MovementScreen
+import com.cmapp.ui.screens.wand.SelectionScreen
 
 @Composable
 fun NavGraph(
@@ -16,19 +20,19 @@ fun NavGraph(
         startDestination = Screens.Home.route
     ){
         composable(route = Screens.Home.route) {
-            HomePage()
+            HomePage(navController = navController)
         }
         composable(route = Screens.Spells.route) {
-            // TODO()
+            MovementScreen(navController = navController)
         }
         composable(route = Screens.Potions.route) {
-            // TODO()
+            MapScreen(navController = navController)
         }
         composable(route = Screens.Social.route) {
-            // TODO()
+            FriendsListScreen(navController = navController)
         }
         composable(route = Screens.Profile.route) {
-            // TODO()
+            SelectionScreen(navController = navController)
         }
     }
 }

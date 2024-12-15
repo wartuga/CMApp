@@ -17,15 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SpellCard
 import com.cmapp.ui.screens.utils.SwapButton
 
 @Composable
 fun UnlockedScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController?
 ) {
     ScreenSkeleton(
+        navController = navController,
         composable = { UnlockedScreenContent(modifier) },
         modifier = modifier
     )
@@ -71,5 +74,5 @@ fun UnlockedScreenContent(
 @Preview
 @Composable
 fun PreviewUnlockedScreen() {
-    UnlockedScreen(Modifier)
+    UnlockedScreen(Modifier, null)
 }

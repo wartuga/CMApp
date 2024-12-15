@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SpellCard
@@ -31,9 +32,11 @@ import com.cmapp.ui.screens.utils.SwapButton
 
 @Composable
 fun LockedScreen(
-    modifier: Modifier
+    modifier: Modifier,
+    navController: NavHostController?
 ) {
     ScreenSkeleton(
+        navController = navController,
         composable = { LockedScreenContent(modifier) },
         modifier = modifier
     )
@@ -116,5 +119,5 @@ fun LockedScreenContent(
 @Preview
 @Composable
 fun PreviewLockedScreen() {
-    LockedScreen(Modifier)
+    LockedScreen(Modifier, null)
 }
