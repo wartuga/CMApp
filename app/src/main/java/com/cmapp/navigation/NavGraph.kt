@@ -1,5 +1,6 @@
 package com.cmapp.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -13,6 +14,7 @@ import com.cmapp.ui.screens.wand.SelectionScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    context: Context
     //viewModel: ViewModel
 ) {
     NavHost (
@@ -23,7 +25,7 @@ fun NavGraph(
             HomePage(navController = navController)
         }
         composable(route = Screens.Spells.route) {
-            MovementScreen(navController = navController)
+            MovementScreen(navController = navController, context = context)
         }
         composable(route = Screens.Potions.route) {
             MapScreen(navController = navController)

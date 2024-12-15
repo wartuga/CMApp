@@ -1,7 +1,13 @@
 package com.cmapp.ui.screens.wand
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,10 +16,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,23 +34,104 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.ScreenSkeleton
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 import kotlin.random.nextInt
 
 @Composable
 fun MovementScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { MovementScreenContent(modifier) },
+        composable = { MovementScreenContent(modifier, context) },
         modifier = modifier
     )
 }
 
 @Composable
-private fun MovementScreenContent(modifier: Modifier) {
+private fun MovementScreenContent(modifier: Modifier, context: Context?) {
+
+    var rotationAngle by remember { mutableStateOf(0f) }
+    var wandDirection by remember { mutableStateOf("up") }
+    var lastWandDirection by remember { mutableStateOf(wandDirection) }
+    var lastTimestamp by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    var move by remember { mutableStateOf("up-right") }
+    var moveColor by remember { mutableStateOf(Color.White) }
+
+    if(context != null) {
+        // Initialize SensorManager and Sensor
+        LaunchedEffect(Unit) {
+            val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+
+            // SensorEventListener to update the rotation angle
+            val listener = object : SensorEventListener {
+                override fun onSensorChanged(event: SensorEvent?) {
+                    if (event != null && event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
+                        val rotationMatrix = FloatArray(9)
+                        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+                        val orientations = FloatArray(3)
+                        SensorManager.getOrientation(rotationMatrix, orientations)
+
+                        val azimuthDegrees = Math.toDegrees(orientations[0].toDouble()).toFloat()
+                        rotationAngle = azimuthDegrees * 0.3f
+
+                        wandDirection = when {
+                            azimuthDegrees > 60.0 -> "right"
+                            azimuthDegrees in 15.0..60.0 -> "up-right"
+                            azimuthDegrees in -15.0..15.0 -> "up"
+                            azimuthDegrees in -60.0..-15.0 -> "up-left"
+                            azimuthDegrees < -60.0 -> "left"
+                            else -> "top" // For completeness
+                        }
+
+                        if (wandDirection != lastWandDirection) {
+                            lastWandDirection = wandDirection
+                            lastTimestamp = System.currentTimeMillis() // Reset timestamp on change
+                        }
+
+                        //Log.d("Degrees", azimuthDegrees.toString())
+                    }
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+            }
+
+            // Register listener
+            sensorManager.registerListener(
+                listener,
+                rotationSensor,
+                SensorManager.SENSOR_DELAY_UI
+            )
+        }
+
+        // Check if the direction is stable for 2 seconds, then wait 1 second and print
+        LaunchedEffect(wandDirection) {
+            while (true) {
+                delay(100) // Check every 100ms
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastTimestamp >= 1500L && wandDirection == move) {
+                    moveColor = Color.Green
+                    delay(500L) // Wait another second
+                    move = when (Random.nextInt(1..5)) {
+                        1 -> "right"
+                        2 -> "up-right"
+                        3 -> "up"
+                        4 -> "up-left"
+                        else -> "left" // Default image
+                    }
+                    moveColor = Color.White
+
+                    lastTimestamp = System.currentTimeMillis()
+                } else { }
+            }
+        }
+    }
+
     // receber varinha do user ou ir buscar a varinha do user
     val seconds = 23 // tempo do feitiço
     Column(
@@ -72,31 +166,38 @@ private fun MovementScreenContent(modifier: Modifier) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            val mov1 = Random.nextInt(1..5)
-            val mov2 = Random.nextInt(1..5)
-            val mov3 = Random.nextInt(1..5)
-            listOf(mov1, mov2, mov3).forEach {
-                Image(
-                    painter = painterResource(
-                        id = when (it) {
-                            1 -> R.drawable.arrow_left
-                            2 -> R.drawable.arrow_up_left
-                            3 -> R.drawable.arrow_up
-                            4 -> R.drawable.arrow_up_right
-                            else -> R.drawable.arrow_right
-                        }
-                    ),
-                    contentDescription = "Movimento $it",
-                    modifier = Modifier.size(80.dp),
-                    colorFilter = ColorFilter.tint(Color.White)
-                )
+            val imageResource = when (move) {
+                "right" -> R.drawable.arrow_right
+                "up-right" -> R.drawable.arrow_up_right
+                "up" -> R.drawable.arrow_up
+                "up-left" -> R.drawable.arrow_up_left
+                "left" -> R.drawable.arrow_left
+                else -> R.drawable.arrow_right // Default image
             }
-        }
-        Row(modifier = modifier.padding(16.dp)) {
-            Text(
-                text = "Varinha",
-                color = Color.White
+
+            Image(
+                painter = painterResource(id = imageResource),
+                contentDescription = "Movimento",
+                modifier = Modifier.size(50.dp),
+                colorFilter = ColorFilter.tint(moveColor)
             )
+            //}
+        }
+        Box(
+            modifier = Modifier.fillMaxSize() // Make the Box fill the screen
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.wand), // Replace with your image resource
+                contentDescription = "Image at Bottom Center",
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .size(400.dp)
+                    .padding(bottom = 32.dp)
+                    .graphicsLayer(
+                        rotationZ = rotationAngle,
+                        transformOrigin = TransformOrigin(0.5f, 0.9f)
+                    ) // Align image at the bottom center
+            )
+
         }
     }
 }
@@ -106,6 +207,7 @@ private fun MovementScreenContent(modifier: Modifier) {
 fun PreviewWandScreen() {
     MovementScreen(
         modifier = Modifier,
+        null,
         null
     )
 }

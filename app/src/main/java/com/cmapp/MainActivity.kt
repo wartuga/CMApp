@@ -17,7 +17,8 @@ class MainActivity : ComponentActivity() {
             CMAppTheme {
                 val navController = rememberNavController()
                 NavGraph (
-                    navController
+                    navController,
+                    this
                 )
             }
         }
