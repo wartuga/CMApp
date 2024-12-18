@@ -21,9 +21,11 @@ val client = OkHttpClient.Builder()
         chain.proceed(request)
     }
     .build()
-
+private val json = Json {
+    ignoreUnknownKeys = true
+}
 private val unsplashRetrofit = Retrofit.Builder()
-    .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
     .baseUrl(BASE_URL)
     .client(client)
     .build()
