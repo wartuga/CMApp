@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,7 +55,7 @@ fun MovementScreen(
 @Composable
 private fun MovementScreenContent(modifier: Modifier, context: Context?) {
 
-    var rotationAngle by remember { mutableStateOf(0f) }
+    var imageRotationAngle by remember { mutableStateOf(0f) }
     var wandDirection by remember { mutableStateOf("up") }
     var lastWandDirection by remember { mutableStateOf(wandDirection) }
     var lastTimestamp by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -66,26 +67,30 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
         // Initialize SensorManager and Sensor
         LaunchedEffect(Unit) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+            val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
+            var pivotAngle: Float? = null
 
             // SensorEventListener to update the rotation angle
             val listener = object : SensorEventListener {
                 override fun onSensorChanged(event: SensorEvent?) {
-                    if (event != null && event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
-                        val rotationMatrix = FloatArray(9)
-                        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
-                        val orientations = FloatArray(3)
-                        SensorManager.getOrientation(rotationMatrix, orientations)
+                    if (event != null && event.sensor.type == Sensor.TYPE_GAME_ROTATION_VECTOR) {
+                        val sensorZ = event.values[2]
+                        if(pivotAngle == null){
+                            pivotAngle = sensorZ
+                        }
 
-                        val azimuthDegrees = Math.toDegrees(orientations[0].toDouble()).toFloat()
-                        rotationAngle = azimuthDegrees * 0.3f
+                        val rotationAngle = pivotAngle?.minus(sensorZ)
+                        //Log.d("rotationAngle", rotationAngle.toString())
+
+                        imageRotationAngle = rotationAngle!! * 50f
+                        Log.d("imageRotationAngle", imageRotationAngle.toString())
 
                         wandDirection = when {
-                            azimuthDegrees > 60.0 -> "right"
-                            azimuthDegrees in 15.0..60.0 -> "up-right"
-                            azimuthDegrees in -15.0..15.0 -> "up"
-                            azimuthDegrees in -60.0..-15.0 -> "up-left"
-                            azimuthDegrees < -60.0 -> "left"
+                            rotationAngle > 0.35 -> "right"
+                            rotationAngle in 0.10..0.35 -> "up-right"
+                            rotationAngle in -0.10..0.10 -> "up"
+                            rotationAngle in -0.35..-0.10 -> "up-left"
+                            rotationAngle < -0.35 -> "left"
                             else -> "top" // For completeness
                         }
 
@@ -116,7 +121,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastTimestamp >= 1500L && wandDirection == move) {
                     moveColor = Color.Green
-                    delay(500L) // Wait another second
+                    delay(250L) // Wait another second
                     move = when (Random.nextInt(1..5)) {
                         1 -> "right"
                         2 -> "up-right"
@@ -193,7 +198,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
                     .size(400.dp)
                     .padding(bottom = 32.dp)
                     .graphicsLayer(
-                        rotationZ = rotationAngle,
+                        rotationZ = imageRotationAngle,
                         transformOrigin = TransformOrigin(0.5f, 0.9f)
                     ) // Align image at the bottom center
             )
