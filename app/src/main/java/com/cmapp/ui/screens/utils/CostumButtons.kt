@@ -58,3 +58,24 @@ fun SwapButton(label: String, modifier: Modifier){
         colorFilter = ColorFilter.tint(Color.White)
     )
 }
+
+@Composable
+fun SwapImage(composable: @Composable () -> Unit, modifier: Modifier){
+    Image(
+        painter = painterResource(id = R.drawable.arrow_left),
+        contentDescription = "Left Arrow",
+        modifier = Modifier
+            .size(50.dp)
+            .padding(8.dp),
+        colorFilter = ColorFilter.tint(Color.White)
+    )
+    composable()
+    Image(
+        painter = painterResource(id = R.drawable.arrow_right),
+        contentDescription = "Left Arrow",
+        modifier = Modifier
+            .size(50.dp)
+            .padding(8.dp),
+        colorFilter = ColorFilter.tint(Color.White)
+    )
+}
