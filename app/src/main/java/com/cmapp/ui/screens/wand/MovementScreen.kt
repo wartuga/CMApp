@@ -74,10 +74,15 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
             val listener = object : SensorEventListener {
                 override fun onSensorChanged(event: SensorEvent?) {
                     if (event != null && event.sensor.type == Sensor.TYPE_GAME_ROTATION_VECTOR) {
+                        Log.d("X", event.values[0].toString())
+                        Log.d("Y", event.values[1].toString())
+                        Log.d("Z", event.values[2].toString())
                         val sensorZ = event.values[2]
                         if(pivotAngle == null){
                             pivotAngle = sensorZ
                         }
+
+                        //val elevation = DRAG like in the dice app but just up and down
 
                         val rotationAngle = pivotAngle?.minus(sensorZ)
                         //Log.d("rotationAngle", rotationAngle.toString())
@@ -132,7 +137,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
                     moveColor = Color.White
 
                     lastTimestamp = System.currentTimeMillis()
-                } else { }
+                }
             }
         }
     }
@@ -153,7 +158,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
         Row(modifier = modifier.padding(16.dp)) {
             Image(
                 painter = painterResource(id = R.drawable.timer),
-                contentDescription = "clock",
+                contentDescription = "Clock",
                 modifier = Modifier
                     .size(30.dp)
                     .padding(end = 4.dp),
@@ -182,18 +187,17 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
 
             Image(
                 painter = painterResource(id = imageResource),
-                contentDescription = "Movimento",
+                contentDescription = "Move",
                 modifier = Modifier.size(50.dp),
                 colorFilter = ColorFilter.tint(moveColor)
             )
-            //}
         }
         Box(
             modifier = Modifier.fillMaxSize() // Make the Box fill the screen
         ) {
             Image(
                 painter = painterResource(id = R.drawable.wand), // Replace with your image resource
-                contentDescription = "Image at Bottom Center",
+                contentDescription = "Wand",
                 modifier = Modifier.align(Alignment.BottomCenter)
                     .size(400.dp)
                     .padding(bottom = 32.dp)
