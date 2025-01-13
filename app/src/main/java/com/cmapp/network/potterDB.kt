@@ -17,8 +17,12 @@ import retrofit2.http.Path
 private const val BASE_URL = "https://api.potterdb.com/"
 private const val VERSION = "v1/"
 
+private val json = Json {
+    ignoreUnknownKeys = true
+}
+
 private val potterDBRetrofit = Retrofit.Builder()
-    .addConverterFactory(Json.asConverterFactory("application/vnd.api+json".toMediaType()))
+    .addConverterFactory(json.asConverterFactory("application/vnd.api+json".toMediaType()))
     .baseUrl(BASE_URL+ VERSION)
     .build()
 
