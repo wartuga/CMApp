@@ -1,7 +1,9 @@
-package com.cmapp.ui.screens
+package com.cmapp.ui.screens.social
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.RemoveButton
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.UserCard
@@ -32,19 +35,22 @@ import com.cmapp.ui.screens.utils.UserCard
 @Composable
 fun FriendsListScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { FriendsListScreenContent(modifier) },
+        composable = { FriendsListScreenContent(modifier, navController) },
         modifier = modifier
     )
 }
 
 @Composable
-private fun FriendsListScreenContent(modifier: Modifier) {
+private fun FriendsListScreenContent(modifier: Modifier, navController: NavHostController?) {
+
     val friendRequests = listOf("Friend 6", "Friend 7")
     val friends = listOf("Friend 1", "Friend 2", "Friend 3", "Friend 4", "Friend 5")
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -118,7 +124,9 @@ private fun FriendsListScreenContent(modifier: Modifier) {
             UserCard(
                 username = friend,
                 composable = { RemoveButton(modifier) },
-                modifier
+                Modifier.clickable{
+                    navController!!.navigate(Screens.SpellsSocial.route)
+                }
             )
         }
 
@@ -128,5 +136,5 @@ private fun FriendsListScreenContent(modifier: Modifier) {
 @Preview
 @Composable
 fun FriendsListScreenPreview() {
-    FriendsListScreen(Modifier, null)
+    FriendsListScreen(Modifier, null, null)
 }

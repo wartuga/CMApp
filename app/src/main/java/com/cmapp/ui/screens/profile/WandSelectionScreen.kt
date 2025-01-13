@@ -1,4 +1,4 @@
-package com.cmapp.ui.screens.wand
+package com.cmapp.ui.screens.profile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -20,8 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,26 +27,25 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.ui.screens.utils.ScreenSkeleton
-import com.cmapp.ui.screens.utils.SwapButton
 import com.cmapp.ui.screens.utils.SwapImage
 import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
-fun SelectionScreen(
+fun WandSelectionScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController?
 ) {
     ScreenSkeleton(
         navController = navController,
         composable = {
-            SelectionScreenContent(modifier)
+            WandSelectionScreenContent(modifier)
         },
         modifier = modifier
     )
 }
 
 @Composable
-private fun SelectionScreenContent(modifier: Modifier) {
+private fun WandSelectionScreenContent(modifier: Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -135,6 +132,6 @@ private fun SelectionScreenContent(modifier: Modifier) {
 
 @Preview
 @Composable
-fun SelectionScreenPreview() {
-    SelectionScreen(modifier = Modifier, null)
+fun WandSelectionScreenPreview() {
+    WandSelectionScreen(modifier = Modifier, null)
 }

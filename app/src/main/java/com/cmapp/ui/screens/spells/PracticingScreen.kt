@@ -1,6 +1,8 @@
 package com.cmapp.ui.screens.spells
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,29 +16,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.cmapp.R
+import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SpellCard
 import com.cmapp.ui.screens.utils.SwapButton
 
 @Composable
-fun UnlockedScreen(
+fun PracticingScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { UnlockedScreenContent(modifier) },
+        composable = { PracticingScreenContent(modifier, navController) },
         modifier = modifier
     )
 }
 
 @Composable
-fun UnlockedScreenContent(
-    modifier: Modifier
+fun PracticingScreenContent(
+    modifier: Modifier,
+    navController: NavHostController?
 ) {
     val unlockedSpells = listOf("Expelliarmus", "Lumos", "Alohomora", "Expecto Patronum", "Stupefy", "Obliviate")
 
@@ -45,10 +55,31 @@ fun UnlockedScreenContent(
         Row(
             modifier = modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SwapButton(label = "Unlocked", modifier = modifier)
+            Text(
+                text = "Learning",
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.Gray
+                ),
+                modifier = Modifier.clickable {
+                    navController!!.navigate(Screens.LearnSpells.route)
+                },
+            )
+            Text(
+                modifier = Modifier.padding(start = 10.dp),
+                text = "Practicing",
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.White
+                )
+
+            )
         }
 
         unlockedSpells.forEach { spell ->
@@ -56,7 +87,7 @@ fun UnlockedScreenContent(
                 spellName = spell,
                 button = {
                     Button(
-                        onClick = {},
+                        onClick = {navController!!.navigate(Screens.MovementSpells.route)},
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .padding(bottom = 40.dp),
@@ -73,6 +104,6 @@ fun UnlockedScreenContent(
 
 @Preview
 @Composable
-fun PreviewUnlockedScreen() {
-    UnlockedScreen(Modifier, null)
+fun PreviewPracticingScreen() {
+    PracticingScreen(Modifier, null, null)
 }

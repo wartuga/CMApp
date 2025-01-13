@@ -1,5 +1,6 @@
-package com.cmapp.ui.screens
+package com.cmapp.ui.screens.potions
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +37,7 @@ const val MAP_SIZE = 330
 const val PADDING = 5
 
 @Composable
-fun MapScreen(modifier: Modifier = Modifier, navController: NavHostController?) {
+fun MapScreen(modifier: Modifier = Modifier, navController: NavHostController?, context: Context?, potionId: Int?) {
     ScreenSkeleton(
         navController = navController,
         composable = {
@@ -166,11 +167,6 @@ private fun MapScreenContent(modifier: Modifier) {
     }
 }
 
-@Preview
-@Composable
-fun MapScreenPreview() {
-    MapScreen(modifier = Modifier, null)
-}
 //Max distance of a Km: 0.01 degrees
 fun generateRandomPlaces(numberPlaces: Int, location: LatLng): List<LatLng> {
     return List(numberPlaces) {
@@ -178,4 +174,10 @@ fun generateRandomPlaces(numberPlaces: Int, location: LatLng): List<LatLng> {
         val randomLongitude = location.longitude + Random.nextDouble(-0.01, 0.01)
         LatLng(randomLatitude, randomLongitude)
     }
+}
+
+@Preview
+@Composable
+fun MapScreenPreview() {
+    MapScreen(modifier = Modifier, null, null, null)
 }

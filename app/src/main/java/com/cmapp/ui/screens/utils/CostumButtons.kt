@@ -1,5 +1,6 @@
 package com.cmapp.ui.screens.utils
 
+import android.widget.ImageButton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,6 +48,7 @@ fun SwapButton(label: String, modifier: Modifier){
             .size(50.dp)
             .padding(8.dp),
         colorFilter = ColorFilter.tint(Color.White)
+
     )
     Text(text = label, color = Color.White, fontSize = 24.sp)
     Image(

@@ -96,6 +96,8 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
 }
 secrets {
     // Optionally specify a different file name containing your secrets.

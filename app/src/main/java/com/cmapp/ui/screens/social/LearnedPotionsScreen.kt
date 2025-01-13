@@ -1,6 +1,8 @@
-package com.cmapp.ui.screens.spells
+package com.cmapp.ui.screens.social
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,10 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.cmapp.R
+import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.RemoveButton
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SpellCard
@@ -25,21 +33,23 @@ import com.cmapp.ui.screens.utils.SwapButton
 import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
-fun LearnedScreen(
-    modifier: Modifier,
-    navController: NavHostController?
+fun LearnedPotionsScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController?,
+    context: Context?,
+    friendId: Int?
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { LearnedScreenContent(modifier) },
+        composable = { LearnedPotionsScreenContent(modifier, navController) },
         modifier = modifier
     )
 }
 
 @Composable
-fun LearnedScreenContent(modifier: Modifier) {
+fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostController?) {
 
-    val learnedSpells = listOf("Expelliarmus", "Lumos", "Alohomora", "Expecto Patronum", "Stupefy", "Obliviate")
+    val learnedSpells = listOf("Amortentia", "Felix Felicis", "Edurus")
 
     Column {
 
@@ -55,10 +65,31 @@ fun LearnedScreenContent(modifier: Modifier) {
             modifier = modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SwapButton(label = "Learned Spells", modifier = modifier)
+            Text(
+                text = "Spells",
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.Gray
+                ),
+                modifier = Modifier.clickable {
+                    navController!!.navigate(Screens.SpellsSocial.route)
+                },
+            )
+            Text(
+                modifier = Modifier.padding(start = 10.dp),
+                text = "Potions",
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    textDecoration = TextDecoration.Underline,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.White
+                )
+
+            )
         }
 
         learnedSpells.forEach { spell ->
@@ -83,6 +114,6 @@ fun LearnedScreenContent(modifier: Modifier) {
 
 @Preview
 @Composable
-fun PreviewLearnedScreen() {
-    LearnedScreen(Modifier, null)
+fun PreviewLearnedPotionsScreen() {
+    LearnedPotionsScreen(Modifier, null, null, null)
 }

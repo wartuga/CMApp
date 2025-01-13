@@ -1,4 +1,4 @@
-package com.cmapp.ui.screens.wand
+package com.cmapp.ui.screens.spells
 
 import android.content.Context
 import android.hardware.Sensor
@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +48,8 @@ import kotlin.random.nextInt
 fun MovementScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController?,
-    context: Context?
+    context: Context?,
+    spellId: Int
 ) {
     ScreenSkeleton(
         navController = navController,
@@ -250,6 +250,7 @@ fun PreviewWandScreen() {
     MovementScreen(
         modifier = Modifier,
         null,
-        null
+        null,
+        0
     )
 }
