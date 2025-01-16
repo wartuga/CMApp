@@ -98,6 +98,9 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
+
+    // Auth Hashing
+    implementation("org.mindrot:jbcrypt:0.4")
 }
 secrets {
     // Optionally specify a different file name containing your secrets.

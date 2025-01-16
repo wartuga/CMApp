@@ -8,12 +8,14 @@ import androidx.navigation.compose.composable
 import com.cmapp.ui.HomePage
 import com.cmapp.ui.screens.social.FriendsListScreen
 import com.cmapp.ui.screens.potions.MapScreen
+import com.cmapp.ui.screens.profile.LoginScreen
+import com.cmapp.ui.screens.profile.RegisterScreen
 import com.cmapp.ui.screens.spells.MovementScreen
 import com.cmapp.ui.screens.profile.WandSelectionScreen
-import com.cmapp.ui.screens.spells.LearningScreen
-import com.cmapp.ui.screens.potions.LearningScreen
 import com.cmapp.ui.screens.social.LearnedPotionsScreen
 import com.cmapp.ui.screens.social.LearnedSpellsScreen
+import com.cmapp.ui.screens.spells.LearningScreen
+import com.cmapp.ui.screens.spells.PracticingScreen
 
 @Composable
 fun NavGraph(
@@ -23,20 +25,26 @@ fun NavGraph(
 ) {
     NavHost (
         navController = navController,
-        startDestination = Screens.LearnSpells.route
+        startDestination = Screens.Login.route
     ){
         composable(route = Screens.Home.route) {
             HomePage(navController = navController)
         }
+        composable(route = Screens.Register.route) {
+            RegisterScreen(navController = navController)
+        }
+        composable(route = Screens.Login.route) {
+            LoginScreen(navController = navController)
+        }
         composable(route = Screens.LearnSpells.route) {
-            com.cmapp.ui.screens.spells.LearningScreen(navController = navController, context = context)
+            LearningScreen(navController = navController, context = context)
         }
         composable(route = Screens.PracticeSpells.route) {
-            com.cmapp.ui.screens.spells.PracticingScreen(navController = navController, context = context)
+            PracticingScreen(navController = navController, context = context)
         }
         composable(route = Screens.MovementSpells.route + "?id={id}") { navBackStack ->
             val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            com.cmapp.ui.screens.spells.MovementScreen(navController = navController, context = context, spellId = id)
+            MovementScreen(navController = navController, context = context, spellId = id)
         }
         composable(route = Screens.LearnPotions.route) {
             com.cmapp.ui.screens.potions.LearningScreen(navController = navController, context = context)
@@ -46,7 +54,7 @@ fun NavGraph(
         }
         composable(route = Screens.MapPotions.route + "?id={id}") { navBackStack ->
             val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            com.cmapp.ui.screens.potions.MapScreen(navController = navController, context = context, potionId = id)
+            MapScreen(navController = navController, context = context, potionId = id)
         }
         composable(route = Screens.FriendsSocial.route) {
             FriendsListScreen(navController = navController, context = context)
