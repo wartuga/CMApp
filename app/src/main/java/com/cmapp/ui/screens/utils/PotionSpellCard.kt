@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.sp
 import com.cmapp.R
 
 @Composable
-fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: String, modifier: Modifier) {
+fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: String, onButtonClick: () -> Unit) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         contentAlignment = Alignment.Center
@@ -60,7 +60,7 @@ fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: St
             Text(
                 text = name,
                 textAlign = TextAlign.Center,
-                modifier = modifier
+                modifier = Modifier
                     .padding(horizontal = 32.dp),
                 style = TextStyle(
                     fontSize = 32.sp,
@@ -72,7 +72,7 @@ fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: St
             Text(
                 text = description,
                 textAlign = TextAlign.Center,
-                modifier = modifier
+                modifier = Modifier
                     .padding(horizontal = 32.dp),
                 style = TextStyle(
                     fontSize = 30.sp,
@@ -81,7 +81,7 @@ fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: St
                 )
             )
             Button(
-                onClick = {},
+                onClick = onButtonClick,
                 border = BorderStroke(2.dp, Color.White),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(83, 12, 114), // Background color
@@ -107,7 +107,7 @@ fun PotionSpellCardPreview(){
         name = "REPARIFORS",
         description = "Heals magical ailments like poisoning or paralysis",
         image = R.drawable.potion,
-        modifier = Modifier,
+        onButtonClick = {},
         buttonLabel = "Practice"
     )
 }

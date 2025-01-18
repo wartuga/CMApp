@@ -1,10 +1,14 @@
 package com.cmapp.navigation
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.DataPage
 import com.cmapp.ui.screens.social.FriendsListScreen
 import com.cmapp.ui.screens.potions.MapScreen
@@ -16,6 +20,8 @@ import com.cmapp.ui.screens.social.LearnedPotionsScreen
 import com.cmapp.ui.screens.social.LearnedSpellsScreen
 import com.cmapp.ui.screens.spells.LearningScreen
 import com.cmapp.ui.screens.spells.PracticingScreen
+import com.google.gson.Gson
+import kotlinx.serialization.json.Json
 
 @Composable
 fun NavGraph(
@@ -45,10 +51,12 @@ fun NavGraph(
         composable(route = Screens.PracticeSpells.route) {
             PracticingScreen(navController = navController, context = context)
         }
-        composable(route = Screens.MovementSpells.route + "?id={id}") { navBackStack ->
-            val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            MovementScreen(navController = navController, context = context, spellId = id)
+
+        composable(route = Screens.MovementSpells.route + "?spellKey={spellKey}") { navBackStack ->
+            var spellKey: String = navBackStack.arguments?.getString("spellKey").toString()
+            MovementScreen(navController = navController, context = context, spellKey = spellKey)
         }
+
         composable(route = Screens.LearnPotions.route) {
             com.cmapp.ui.screens.potions.LearningScreen(navController = navController, context = context)
         }

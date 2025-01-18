@@ -1,6 +1,7 @@
 package com.cmapp.model.data
 
 import android.util.Log
+import com.cmapp.model.domain.database.Spell
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -126,23 +127,9 @@ object DataBaseHelper {
         return completableFuture
     }
 
-    fun addSpell(
-        color: String,
-        description: String?,
-        movements: String?,
-        name: String?,
-        time: Int?
-    ): CompletableFuture<Boolean> {
+    fun addSpell(spell: Spell): CompletableFuture<Boolean> {
 
         val completableFuture = CompletableFuture<Boolean>()
-
-        val spell = hashMapOf(
-            "color" to color,
-            "description" to description,
-            "movements" to movements,
-            "name" to name,
-            "time" to time
-        )
 
         database.getReference("spells").push().setValue(spell).addOnCompleteListener { task ->
 
@@ -153,22 +140,37 @@ object DataBaseHelper {
         return completableFuture
     }
 
-    fun getSpells(onResult: (HashMap<String, Any>) -> Unit) {
+    fun getSpells(onResult: (List<Spell>) -> Unit) {
 
         database.getReference("spells").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                val spell = snapshot.value as? HashMap<String, Any>
-                if (spell != null) {
-                    onResult(spell)
-                } else {
-                    onResult(hashMapOf())
+                val spellList = mutableListOf<Spell>()
+
+                for(snapshot in dataSnapshot.children){
+                    val spell = snapshot.getValue(Spell::class.java)
+                    spell?.key = snapshot.key.toString()
+                    spell?.let { spellList.add(it) }
                 }
+
+                onResult(spellList)
             }
 
             override fun onCancelled(error: DatabaseError) {
                 println("Error retrieving data: ${error.message}")
             }
+        })
+    }
+
+    fun getSpell(spellKey:String, onResult: (Spell) -> Unit){
+
+        database.getReference("spells").child(spellKey).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val spell = dataSnapshot.getValue(Spell::class.java)
+                onResult(spell!!)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
         })
     }
 

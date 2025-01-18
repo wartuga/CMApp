@@ -93,7 +93,7 @@ fun PracticingScreenContent(
                 image = R.drawable.spell,
                 description = "Forces an opponent to drop whatever's in their possession",
                 buttonLabel = "Practice",
-                modifier = modifier
+                onButtonClick = {}
             )
             Spacer(modifier = modifier.height(8.dp))
         }

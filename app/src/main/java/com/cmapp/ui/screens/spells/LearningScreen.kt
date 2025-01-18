@@ -1,6 +1,8 @@
 package com.cmapp.ui.screens.spells
 
 import android.content.Context
+import android.net.Uri
+import android.os.Bundle
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -34,10 +36,14 @@ import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getSpells
 import com.cmapp.model.data.toUpperCase
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SwapButton
+import com.google.gson.Gson
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun LearningScreen(
@@ -57,10 +63,9 @@ fun LearningScreenContent(
     modifier: Modifier,
     navController: NavHostController?
 ) {
-    var spells by remember { mutableStateOf<HashMap<String, Any>>(hashMapOf()) }
+    var spells by remember { mutableStateOf<List<Spell>>(mutableListOf()) }
     getSpells(){ spellsDb -> spells = spellsDb }
 
-    val unlockedSpells = listOf("EXPELLIARMUS", "LUMOS", "ALOHOMORA")
     val scrollState = rememberScrollState()
 
     Column (modifier = Modifier.verticalScroll(scrollState)) {
@@ -95,19 +100,19 @@ fun LearningScreenContent(
 
         Spacer(modifier = modifier.height(16.dp))
 
-        spells.keys.forEach { spellKey ->
-
-            val spell = spells[spellKey] as Map<String, Any>
+        spells.forEach { spell ->
 
             PotionSpellCard(
-                name = toUpperCase(spell.get("name").toString()),
+                name = toUpperCase(spell.name!!),
                 image = R.drawable.spell,
-                description = spell.get("description").toString(),
+                description = spell.description!!,
                 buttonLabel = "Learn",
-                modifier = modifier
+                onButtonClick = {
+                    navController!!.navigate(Screens.MovementSpells.route.replace(oldValue = "{spellKey}", newValue = spell.key!!))
+                }
             )
-            Spacer(modifier = modifier.height(8.dp))
         }
+            Spacer(modifier = modifier.height(8.dp))
     }
 }
 

@@ -12,6 +12,7 @@ import com.cmapp.model.data.getRandomMovements
 import com.cmapp.model.data.getRandomPotionColor
 import com.cmapp.model.data.getRandomSpellColor
 import com.cmapp.model.data.getRandomTime
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.model.domain.potterDB.PotterData
 import com.cmapp.model.domain.potterDB.PotterPotion
 import com.cmapp.model.domain.potterDB.PotterSpell
@@ -81,14 +82,13 @@ class PotterViewModel: ViewModel() {
 
         spells!!.data.forEach { spell ->
 
-            val attributes = spell.attributes
             val color = getRandomSpellColor()
-            val name = attributes.name
-            val description = attributes.effect
+            val name = spell.attributes.name
+            val description = spell.attributes.effect
             val movements = getRandomMovements()
             val time = getRandomTime()
 
-            addSpell(color = color, name = name, description = description, movements = movements, time = time).await()
+            addSpell(Spell(color = color, name = name, description = description, movements = movements, time = time)).await()
         }
     }
 

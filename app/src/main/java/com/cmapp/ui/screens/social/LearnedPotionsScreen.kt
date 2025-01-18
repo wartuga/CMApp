@@ -107,7 +107,7 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
                 image = R.drawable.potion,
                 description = "Heals magical ailments like poisoning or paralysis",
                 buttonLabel = "Learn",
-                modifier = modifier
+                onButtonClick = {}
             )
             Spacer(modifier = modifier.height(8.dp))
         }

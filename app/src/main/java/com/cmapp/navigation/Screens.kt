@@ -4,7 +4,7 @@ sealed class Screens(val route: String, val section: String) {
     object Data: Screens("data_screen", "Data")
     object LearnSpells: Screens("learn_spells_screen", "Spells")
     object PracticeSpells: Screens("practice_spells_screen", "Spells")
-    object MovementSpells: Screens("movement_spells_screen", "Spells")
+    object MovementSpells: Screens("movement_spells_screen/{spellKey}", "Spells")
     object LearnPotions: Screens("learn_potions_screen", "Potions")
     object PracticePotions: Screens("practice_potions_screen", "Potions")
     object MapPotions: Screens("map_potions_screen", "Potions")

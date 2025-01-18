@@ -91,7 +91,7 @@ fun LearningScreenContent(
                 description = "Makes the drinker lucky",
                 image = R.drawable.potion,
                 buttonLabel = "Learn",
-                modifier = modifier
+                onButtonClick = {}
             )
             Spacer(modifier = modifier.height(8.dp))
         }

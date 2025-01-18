@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getSpell
+import com.cmapp.model.data.DataBaseHelper.getSpells
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
@@ -49,17 +53,17 @@ fun MovementScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController?,
     context: Context?,
-    spellId: Int
+    spellKey: String?
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { MovementScreenContent(modifier, context) },
+        composable = { MovementScreenContent(modifier, context, spellKey!!) },
         modifier = modifier
     )
 }
 
 @Composable
-private fun MovementScreenContent(modifier: Modifier, context: Context?) {
+private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKey: String) {
 
     val configuration = LocalConfiguration.current
 
@@ -174,17 +178,22 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
     }
 
     // receber varinha do user ou ir buscar a varinha do user
-    val seconds = 23 // tempo do feitiço
+
+    var spell by remember { mutableStateOf<Spell>(Spell()) }
+    getSpell(spellKey){ spellDb -> spell = spellDb }
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(modifier = modifier.padding(30.dp)) {
-            Text(
-                text = "Feitiço",
-                color = Color.White,
-                fontSize = 36.sp
-            )
+            spell.name?.let {
+                Text(
+                    text = it,
+                    color = Color.White,
+                    fontSize = 36.sp
+                )
+            }
         }
         Row(modifier = modifier.padding(16.dp)) {
             Image(
@@ -196,7 +205,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?) {
                 colorFilter = ColorFilter.tint(Color.White)
             )
             Text(
-                text = "${seconds}s",
+                text = "${spell.time}s",
                 color = Color.White,
                 fontSize = 20.sp
             )
@@ -251,6 +260,6 @@ fun PreviewWandScreen() {
         modifier = Modifier,
         null,
         null,
-        0
+        null
     )
 }

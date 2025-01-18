@@ -90,7 +90,7 @@ fun PracticingScreenContent(
                 description = "Love potion that caused a powerful infatuation or obsession in the drinker",
                 image = R.drawable.potion,
                 buttonLabel = "Practice",
-                modifier = modifier
+                onButtonClick = {}
             )
             Spacer(modifier = modifier.height(8.dp))
         }

@@ -108,7 +108,7 @@ fun LearnedSpellsScreenContent(modifier: Modifier, navController: NavHostControl
                 description = "Aimed at the legs, causes uncontrollable dancing movement",
                 image = R.drawable.spell,
                 buttonLabel = "Learn",
-                modifier = modifier
+                onButtonClick = {}
             )
             Spacer(modifier = modifier.height(8.dp))
         }
