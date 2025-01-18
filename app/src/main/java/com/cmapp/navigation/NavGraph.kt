@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.cmapp.ui.HomePage
+import com.cmapp.ui.DataPage
 import com.cmapp.ui.screens.social.FriendsListScreen
 import com.cmapp.ui.screens.potions.MapScreen
 import com.cmapp.ui.screens.profile.LoginScreen
@@ -25,16 +25,19 @@ fun NavGraph(
 ) {
     NavHost (
         navController = navController,
-        startDestination = Screens.Login.route
+        startDestination = Screens.LearnSpells.route //Login
+
+        //Populate database
+        //startDestination = Screens.Data.route
     ){
-        composable(route = Screens.Home.route) {
-            HomePage(navController = navController)
+        composable(route = Screens.Data.route) {
+            DataPage(navController = navController, context = context)
         }
         composable(route = Screens.Register.route) {
-            RegisterScreen(navController = navController)
+            RegisterScreen(navController = navController, context = context)
         }
         composable(route = Screens.Login.route) {
-            LoginScreen(navController = navController)
+            LoginScreen(navController = navController, context = context)
         }
         composable(route = Screens.LearnSpells.route) {
             LearningScreen(navController = navController, context = context)

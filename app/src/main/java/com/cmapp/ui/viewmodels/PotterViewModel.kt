@@ -6,8 +6,21 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.network.HttpException
+import com.cmapp.model.data.DataBaseHelper.addPotion
+import com.cmapp.model.data.DataBaseHelper.addSpell
+import com.cmapp.model.data.getRandomMovements
+import com.cmapp.model.data.getRandomPotionColor
+import com.cmapp.model.data.getRandomSpellColor
+import com.cmapp.model.data.getRandomTime
+import com.cmapp.model.domain.potterDB.PotterData
+import com.cmapp.model.domain.potterDB.PotterPotion
+import com.cmapp.model.domain.potterDB.PotterSpell
 import com.cmapp.network.PotterDBApi
 import com.cmapp.ui.states.PotterUiState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -23,8 +36,60 @@ class PotterViewModel: ViewModel() {
     var uiState: PotterUiState by mutableStateOf(PotterUiState.Loading)
         private set
 
+    private val _potions = MutableStateFlow<PotterData<List<PotterPotion>>?>(null)
+    val potions: MutableStateFlow<PotterData<List<PotterPotion>>?> = _potions
+
+    private val _spells = MutableStateFlow<PotterData<List<PotterSpell>>?>(null)
+    val spells: MutableStateFlow<PotterData<List<PotterSpell>>?> = _spells
+
     init {
-        getPotions()
+        fetchPotions()
+        fetchSpells()
+    }
+
+    private fun fetchPotions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val potions = PotterDBApi.retrofitService.getPotions()
+            _potions.value = potions
+            storePotions(potions)
+        }
+    }
+
+    private suspend fun storePotions(potions: PotterData<List<PotterPotion>>?) {
+
+        potions!!.data.forEach { potion ->
+
+            val attributes = potion.attributes
+            val color = getRandomPotionColor()
+            val name = attributes.name
+            val description = attributes.effect
+            val ingredients = attributes.ingredients
+
+            addPotion(color = color, name = name, description = description, ingredients = ingredients).await()
+        }
+    }
+
+    private fun fetchSpells() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val spells = PotterDBApi.retrofitService.getSpells()
+            _spells.value = spells
+            storeSpells(spells)
+        }
+    }
+
+    private suspend fun storeSpells(spells: PotterData<List<PotterSpell>>?) {
+
+        spells!!.data.forEach { spell ->
+
+            val attributes = spell.attributes
+            val color = getRandomSpellColor()
+            val name = attributes.name
+            val description = attributes.effect
+            val movements = getRandomMovements()
+            val time = getRandomTime()
+
+            addSpell(color = color, name = name, description = description, movements = movements, time = time).await()
+        }
     }
 
     private fun getBooks(){
@@ -83,24 +148,10 @@ class PotterViewModel: ViewModel() {
         }
     }
 
-    private fun getPotions() {
-        callback {
-            val potions = PotterDBApi.retrofitService.getPotions()
-            PotterUiState.Success("Success: $potions")
-        }
-    }
-
     private fun getPotion(id: String) {
         callback {
             val potion = PotterDBApi.retrofitService.getPotion(id)
             PotterUiState.Success("Success: $potion")
-        }
-    }
-
-    private fun getSpells() {
-        callback {
-            val spells = PotterDBApi.retrofitService.getSpells()
-            PotterUiState.Success("Success: $spells")
         }
     }
 

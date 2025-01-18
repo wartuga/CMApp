@@ -1,9 +1,13 @@
 package com.cmapp.model.data
 
 import android.util.Log
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import org.mindrot.jbcrypt.BCrypt
+import java.util.concurrent.CompletableFuture
 
 object DataBaseHelper {
 
@@ -19,7 +23,11 @@ object DataBaseHelper {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        if(!isAuthValid(username, password)) return
+        if(!isAuthValid(username, password)){
+            Log.d("AuthValid", "Failed")
+            return
+        }
+        Log.d("AuthValid", "Passed")
 
         val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
 
@@ -48,7 +56,11 @@ object DataBaseHelper {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        if(!isAuthValid(username, password)) return
+        if(!isAuthValid(username, password)){
+            Log.d("AuthValid", "Failed")
+            return
+        }
+        Log.d("AuthValid", "Passed")
 
         val usernameRef = database.getReference("accounts")
 
@@ -87,6 +99,77 @@ object DataBaseHelper {
                     Log.d("register", task.exception?.localizedMessage ?: "error registering the user")
                 }
             }
+    }
+
+    fun addPotion(
+        color: String,
+        description: String?,
+        ingredients: String?,
+        name: String?
+    ): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        val potion = hashMapOf(
+            "color" to color,
+            "description" to description,
+            "ingredients" to ingredients,
+            "name" to name
+        )
+
+        database.getReference("potions").push().setValue(potion).addOnCompleteListener { task ->
+
+            if (task.isSuccessful) { completableFuture.complete(true) }
+            else { completableFuture.complete(false) }
+        }
+
+        return completableFuture
+    }
+
+    fun addSpell(
+        color: String,
+        description: String?,
+        movements: String?,
+        name: String?,
+        time: Int?
+    ): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        val spell = hashMapOf(
+            "color" to color,
+            "description" to description,
+            "movements" to movements,
+            "name" to name,
+            "time" to time
+        )
+
+        database.getReference("spells").push().setValue(spell).addOnCompleteListener { task ->
+
+            if (task.isSuccessful) { completableFuture.complete(true) }
+            else { completableFuture.complete(false) }
+        }
+
+        return completableFuture
+    }
+
+    fun getSpells(onResult: (HashMap<String, Any>) -> Unit) {
+
+        database.getReference("spells").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val spell = snapshot.value as? HashMap<String, Any>
+                if (spell != null) {
+                    onResult(spell)
+                } else {
+                    onResult(hashMapOf())
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                println("Error retrieving data: ${error.message}")
+            }
+        })
     }
 
     private fun isAuthValid(username: String, password: String) =

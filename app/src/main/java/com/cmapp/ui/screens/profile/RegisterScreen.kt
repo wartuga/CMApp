@@ -1,5 +1,6 @@
 package com.cmapp.ui.screens.profile
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,18 +18,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavHostController
 import com.cmapp.model.data.DataBaseHelper.registerUser
+import com.cmapp.model.data.StorageHelper.setUsername
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
+    context: Context?,
     navController: NavHostController?
 ) {
     ScreenSkeleton(
         navController = navController,
         composable = {
-            RegisterScreenContent(modifier, navController)
+            RegisterScreenContent(modifier, context, navController)
         },
         modifier = modifier
     )
@@ -37,6 +40,7 @@ fun RegisterScreen(
 @Composable
 fun RegisterScreenContent(
     modifier: Modifier,
+    context: Context?,
     navController: NavHostController?
 ){
 
@@ -69,7 +73,10 @@ fun RegisterScreenContent(
                             registerUser(
                                 username,
                                 password,
-                                onSuccess = { navController?.navigate(Screens.Login.route) },
+                                onSuccess = {
+                                    setUsername(context!!, username)
+                                    navController?.navigate(Screens.WandProfile.route)
+                                            },
                                 onError = { /* apresentar toast */ }
                             )
                         },

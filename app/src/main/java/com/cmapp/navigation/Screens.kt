@@ -1,7 +1,7 @@
 package com.cmapp.navigation
 
 sealed class Screens(val route: String, val section: String) {
-    object Home: Screens("home_screen", "Home")
+    object Data: Screens("data_screen", "Data")
     object LearnSpells: Screens("learn_spells_screen", "Spells")
     object PracticeSpells: Screens("practice_spells_screen", "Spells")
     object MovementSpells: Screens("movement_spells_screen", "Spells")

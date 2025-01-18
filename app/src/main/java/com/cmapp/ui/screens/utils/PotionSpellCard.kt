@@ -2,7 +2,10 @@ package com.cmapp.ui.screens.utils
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,17 +43,6 @@ fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: St
             contentScale = ContentScale.Crop
         )
 
-        Text(
-            text = name,
-            modifier = modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 36.dp),
-            style = TextStyle(
-                fontSize = 36.sp,
-                fontFamily = FontFamily(Font(resId = R.font.harry)),
-                color = Color.Black
-            ),
-        )
         Image(
             painter = painterResource(id = image), // Replace with your image resource
             contentDescription = "Background Image",
@@ -59,34 +51,51 @@ fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: St
             .fillMaxWidth()// The image will take up the full size of the Box
         )
 
-        Text(
-            text = description,
-            textAlign = TextAlign.Center,
-            modifier = modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 32.dp),
-            style = TextStyle(
-                fontSize = 30.sp,
-                fontFamily = FontFamily(Font(resId = R.font.harry)),
-                color = Color.Black
-            )
-        )
-        Button(
-            onClick = {},
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp),
-            border = BorderStroke(2.dp, Color.White),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(83, 12, 114), // Background color
-                contentColor = Color.White   // Text/icon color
-            ),
+                .height(220.dp).padding(top = 14.dp),
+            verticalArrangement = Arrangement.SpaceBetween, // Distributes elements with space between them
+            horizontalAlignment = Alignment.CenterHorizontally // Centers elements horizontally
         ) {
-            Text(text = buttonLabel, color = Color.White, style = TextStyle(
-                fontSize = 34.sp,
-                fontFamily = FontFamily(Font(resId = R.font.harry)),
-                color = Color.White
-            ))
+            Text(
+                text = name,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+                    .padding(horizontal = 32.dp),
+                style = TextStyle(
+                    fontSize = 32.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.Black
+                ),
+            )
+
+            Text(
+                text = description,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+                    .padding(horizontal = 32.dp),
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.Black
+                )
+            )
+            Button(
+                onClick = {},
+                border = BorderStroke(2.dp, Color.White),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(83, 12, 114), // Background color
+                    contentColor = Color.White   // Text/icon color
+                ),
+            ) {
+                Text(
+                    text = buttonLabel, color = Color.White, style = TextStyle(
+                        fontSize = 34.sp,
+                        fontFamily = FontFamily(Font(resId = R.font.harry)),
+                        color = Color.White
+                    )
+                )
+            }
         }
     }
 }
