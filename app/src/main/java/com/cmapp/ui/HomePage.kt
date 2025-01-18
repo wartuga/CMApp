@@ -8,11 +8,12 @@ import androidx.navigation.NavHostController
 import com.cmapp.ui.screens.HomeScreen
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.theme.CMAppTheme
+import com.cmapp.ui.viewmodels.PotterViewModel
 import com.cmapp.ui.viewmodels.UnsplashViewModel
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavHostController?) {
-    val viewModel: UnsplashViewModel = viewModel()
+    val viewModel: PotterViewModel = viewModel()
     ScreenSkeleton(
         navController = navController,
         { HomeScreen(viewModel.uiState, modifier) },

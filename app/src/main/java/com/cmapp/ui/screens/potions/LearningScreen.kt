@@ -1,7 +1,6 @@
 package com.cmapp.ui.screens.potions
 
 import android.content.Context
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,10 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.navigation.Screens
-import com.cmapp.ui.screens.utils.PotionCard
+import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
-import com.cmapp.ui.screens.utils.SpellCard
-import com.cmapp.ui.screens.utils.SwapButton
 
 @Composable
 fun LearningScreen(
@@ -49,10 +47,13 @@ fun LearningScreenContent(
     modifier: Modifier,
     navController: NavHostController?,
 ) {
-    val unlockedPotions = listOf("Amortentia", "Felix Felicis", "Edurus")
+    val unlockedPotions = listOf("AMORTENTIA", "FELIX FELICIS", "EDURUS")
+    val scrollState = rememberScrollState()
 
-    Column {
-        Spacer(modifier = modifier.height(20.dp))
+    Column (modifier = Modifier.verticalScroll(scrollState)){
+
+        Spacer(modifier = modifier.height(24.dp))
+
         Row(
             modifier = modifier
                 .fillMaxWidth(),
@@ -61,18 +62,18 @@ fun LearningScreenContent(
 
         ) {
             Text(
-                text = "Learning",
+                text = "ALL",
                 style = TextStyle(
-                    fontSize = 26.sp,
+                    fontSize = 36.sp,
                     textDecoration = TextDecoration.Underline,
                     fontFamily = FontFamily(Font(resId = R.font.harry)),
                     color = Color.White
                 )
             )
             Text(
-                text = "Practicing",
+                text = "LEARNED",
                 style = TextStyle(
-                    fontSize = 26.sp,
+                    fontSize = 36.sp,
                     fontFamily = FontFamily(Font(resId = R.font.harry)),
                     color = Color.Gray
                 ),
@@ -82,22 +83,17 @@ fun LearningScreenContent(
             )
         }
 
+        Spacer(modifier = modifier.height(16.dp))
+
         unlockedPotions.forEach { potion ->
-            PotionCard(
-                potionName = potion,
-                button = {
-                    Button(
-                        onClick = {navController!!.navigate(Screens.MapPotions.route)},
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 40.dp),
-                        border = BorderStroke(1.dp, Color.White)
-                    ) {
-                        Text(text = "Learn", color = Color.White, fontSize = 24.sp)
-                    }
-                },
+            PotionSpellCard(
+                name = potion,
+                description = "Makes the drinker lucky",
+                image = R.drawable.potion,
+                buttonLabel = "Learn",
                 modifier = modifier
             )
+            Spacer(modifier = modifier.height(8.dp))
         }
     }
 }

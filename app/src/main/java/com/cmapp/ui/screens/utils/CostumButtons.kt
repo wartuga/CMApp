@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cmapp.R
@@ -26,15 +30,19 @@ fun RemoveButton(modifier: Modifier) {
         onClick = {  },
         modifier = modifier
             .height(40.dp)
-            .width(70.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            .width(76.dp)
+            .offset(x = 2.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(176, 48, 50)),
         border = BorderStroke(1.dp, Color.White),
         contentPadding = PaddingValues(0.dp)
     ) {
         Text(
             text = "Remove",
-            color = Color.White,
-            fontSize = 16.sp
+            style = TextStyle(
+                fontSize = 26.sp,
+                fontFamily = FontFamily(Font(resId = R.font.harry)),
+                color = Color.White
+            ),
         )
     }
 }
@@ -64,20 +72,18 @@ fun SwapButton(label: String, modifier: Modifier){
 @Composable
 fun SwapImage(composable: @Composable () -> Unit, modifier: Modifier){
     Image(
-        painter = painterResource(id = R.drawable.arrow_left),
+        painter = painterResource(id = R.drawable.left_arrow),
         contentDescription = "Left Arrow",
         modifier = Modifier
             .size(50.dp)
             .padding(8.dp),
-        colorFilter = ColorFilter.tint(Color.White)
     )
     composable()
     Image(
-        painter = painterResource(id = R.drawable.arrow_right),
+        painter = painterResource(id = R.drawable.right_arrow),
         contentDescription = "Left Arrow",
         modifier = Modifier
             .size(50.dp)
             .padding(8.dp),
-        colorFilter = ColorFilter.tint(Color.White)
     )
 }

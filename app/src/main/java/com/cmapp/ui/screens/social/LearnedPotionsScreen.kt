@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,10 +29,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.navigation.Screens
+import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.RemoveButton
 import com.cmapp.ui.screens.utils.ScreenSkeleton
-import com.cmapp.ui.screens.utils.SpellCard
-import com.cmapp.ui.screens.utils.SwapButton
 import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
@@ -49,17 +51,22 @@ fun LearnedPotionsScreen(
 @Composable
 fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostController?) {
 
-    val learnedSpells = listOf("Amortentia", "Felix Felicis", "Edurus")
+    val scrollState = rememberScrollState()
+    val unlockedPotions = listOf("AMORTENTIA", "FELIX FELICIS", "EDURUS")
 
-    Column {
+    Column (modifier = modifier.verticalScroll(scrollState)){
 
-        Spacer(modifier = modifier.height(16.dp))
+        Spacer(modifier = modifier.height(24.dp))
 
         UserCard(
             username = "Dumbledory",
             composable = { RemoveButton(modifier) },
-            modifier = modifier
+            modifier = modifier,
+            picture = R.drawable.face, wand = R.drawable.wand_side
+
         )
+
+        Spacer(modifier = modifier.height(24.dp))
 
         Row(
             modifier = modifier
@@ -69,9 +76,9 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Spells",
+                text = "SPELLS",
                 style = TextStyle(
-                    fontSize = 26.sp,
+                    fontSize = 36.sp,
                     fontFamily = FontFamily(Font(resId = R.font.harry)),
                     color = Color.Gray
                 ),
@@ -81,9 +88,9 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
             )
             Text(
                 modifier = Modifier.padding(start = 10.dp),
-                text = "Potions",
+                text = "POTIONS",
                 style = TextStyle(
-                    fontSize = 26.sp,
+                    fontSize = 36.sp,
                     textDecoration = TextDecoration.Underline,
                     fontFamily = FontFamily(Font(resId = R.font.harry)),
                     color = Color.White
@@ -92,22 +99,17 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
             )
         }
 
-        learnedSpells.forEach { spell ->
-            SpellCard(
-                spellName = spell,
-                button = {
-                    Button(
-                        onClick = {},
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 40.dp),
-                        border = BorderStroke(1.dp, Color.White)
-                    ) {
-                        Text(text = "Practice", color = Color.White, fontSize = 24.sp)
-                    }
-                },
+        Spacer(modifier = modifier.height(16.dp))
+
+        unlockedPotions.forEach { spell ->
+            PotionSpellCard(
+                name = spell,
+                image = R.drawable.potion,
+                description = "Heals magical ailments like poisoning or paralysis",
+                buttonLabel = "Learn",
                 modifier = modifier
             )
+            Spacer(modifier = modifier.height(8.dp))
         }
     }
 }

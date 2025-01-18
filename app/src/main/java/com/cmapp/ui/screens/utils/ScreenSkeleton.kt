@@ -19,7 +19,7 @@ fun ScreenSkeleton(
     modifier: Modifier = Modifier
 ) {
     Scaffold (
-        bottomBar = { NavigationBar(modifier, navController) }
+        bottomBar = { if(navController!=null) NavigationBar(modifier, navController) }
     ) { padding ->
         Box(modifier = modifier.padding(padding).fillMaxSize()){
             Image(
