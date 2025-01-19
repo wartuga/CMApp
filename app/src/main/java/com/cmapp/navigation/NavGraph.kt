@@ -16,6 +16,7 @@ import com.cmapp.ui.screens.social.LearnedPotionsScreen
 import com.cmapp.ui.screens.social.LearnedSpellsScreen
 import com.cmapp.ui.screens.spells.LearningScreen
 import com.cmapp.ui.screens.spells.PracticingScreen
+import com.cmapp.ui.screens.potions.ColorCheckerScreen
 
 @Composable
 fun NavGraph(
@@ -69,6 +70,11 @@ fun NavGraph(
         }
         composable(route = Screens.WandProfile.route) {
             WandSelectionScreen(navController = navController)
+        }
+        // object ColorChecker: Screens("color_checker_screen", "Potions")
+        composable(route = Screens.ColorChecker.route + "?id={id}") { navBackStack ->
+            val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
+            ColorCheckerScreen(navController = navController, context = context, potionId = id)
         }
     }
 }

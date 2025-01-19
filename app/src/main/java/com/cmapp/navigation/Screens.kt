@@ -14,4 +14,5 @@ sealed class Screens(val route: String, val section: String) {
     object WandProfile: Screens("wand_profile_screen", "Profile")
     object Register : Screens("register", "Home")
     object Login : Screens("login", "Home")
+    object ColorChecker: Screens("color_checker_screen", "Potions")
 }
