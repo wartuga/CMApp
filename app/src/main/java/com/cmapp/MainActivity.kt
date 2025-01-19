@@ -12,6 +12,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.compose.rememberNavController
+import com.cmapp.model.data.DataBaseHelper.addLearnedSpell
+import com.cmapp.model.data.StorageHelper.setUsername
 import com.cmapp.navigation.NavGraph
 import com.cmapp.ui.theme.CMAppTheme
 import com.cmapp.ui.theme.DarkColorScheme
@@ -45,6 +47,8 @@ fun MyAppTheme(content: @Composable () -> Unit) {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setUsername(this, "Test") //TESTE
 
         enableEdgeToEdge()
         setContent {

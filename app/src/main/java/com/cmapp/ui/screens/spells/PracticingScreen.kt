@@ -1,6 +1,7 @@
 package com.cmapp.ui.screens.spells
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getLearnedSpells
+import com.cmapp.model.data.DataBaseHelper.getSpells
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.data.toUpperCase
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
@@ -40,7 +50,7 @@ fun PracticingScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { PracticingScreenContent(modifier, navController) },
+        composable = { PracticingScreenContent(modifier, navController, context) },
         modifier = modifier
     )
 }
@@ -48,9 +58,12 @@ fun PracticingScreen(
 @Composable
 fun PracticingScreenContent(
     modifier: Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
-    val unlockedSpells = listOf("EXPELLIARMUS", "LUMOS", "ALOHOMORA")
+    var spells by remember { mutableStateOf<List<Spell>>(mutableListOf()) }
+    getLearnedSpells(getUsername(context!!)){ spellsDb -> spells = spellsDb }
+
     val scrollState = rememberScrollState()
 
     Column (modifier = Modifier.verticalScroll(scrollState)) {
@@ -81,21 +94,22 @@ fun PracticingScreenContent(
                     textDecoration = TextDecoration.Underline,
                     color = Color.White
                 )
-
             )
         }
 
         Spacer(modifier = modifier.height(16.dp))
 
-        unlockedSpells.forEach { spell ->
+        spells.forEach { spell ->
+
             PotionSpellCard(
-                name = spell,
+                name = toUpperCase(spell.name!!),
                 image = R.drawable.spell,
-                description = "Forces an opponent to drop whatever's in their possession",
+                description = spell.description!!,
                 buttonLabel = "Practice",
-                onButtonClick = {}
+                onButtonClick = {
+                    navController!!.navigate(Screens.MovementSpells.route.replace(oldValue = "{spellKey}", newValue = spell.key!!))
+                }
             )
-            Spacer(modifier = modifier.height(8.dp))
         }
     }
 }

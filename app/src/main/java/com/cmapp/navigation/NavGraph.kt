@@ -31,7 +31,7 @@ fun NavGraph(
 ) {
     NavHost (
         navController = navController,
-        startDestination = Screens.LearnSpells.route //Login
+        startDestination = Screens.LearnSpells.route //Deve ser Login
 
         //Populate database
         //startDestination = Screens.Data.route
@@ -63,9 +63,9 @@ fun NavGraph(
         composable(route = Screens.PracticePotions.route) {
             com.cmapp.ui.screens.potions.PracticingScreen(navController = navController, context = context)
         }
-        composable(route = Screens.MapPotions.route + "?id={id}") { navBackStack ->
-            val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            MapScreen(navController = navController, context = context, potionId = id)
+        composable(route = Screens.MapPotions.route + "?potionKey={potionKey}") { navBackStack ->
+            val potionKey: String = navBackStack.arguments?.getString("potionKey").toString()
+            MapScreen(navController = navController, context = context, potionKey = potionKey)
         }
         composable(route = Screens.FriendsSocial.route) {
             FriendsListScreen(navController = navController, context = context)

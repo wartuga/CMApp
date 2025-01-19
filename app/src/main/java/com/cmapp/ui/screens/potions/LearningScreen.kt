@@ -13,6 +13,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getPotions
+import com.cmapp.model.data.DataBaseHelper.getSpells
+import com.cmapp.model.data.toUpperCase
+import com.cmapp.model.domain.database.Potion
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
@@ -47,7 +56,9 @@ fun LearningScreenContent(
     modifier: Modifier,
     navController: NavHostController?,
 ) {
-    val unlockedPotions = listOf("AMORTENTIA", "FELIX FELICIS", "EDURUS")
+    var potions by remember { mutableStateOf<List<Potion>>(mutableListOf()) }
+    getPotions(){ potionsDb -> potions = potionsDb }
+
     val scrollState = rememberScrollState()
 
     Column (modifier = Modifier.verticalScroll(scrollState)){
@@ -85,13 +96,16 @@ fun LearningScreenContent(
 
         Spacer(modifier = modifier.height(16.dp))
 
-        unlockedPotions.forEach { potion ->
+        potions.forEach { potion ->
+
             PotionSpellCard(
-                name = potion,
-                description = "Makes the drinker lucky",
+                name = toUpperCase(potion.name!!),
+                description = potion.description!!,
                 image = R.drawable.potion,
                 buttonLabel = "Learn",
-                onButtonClick = {}
+                onButtonClick = {
+                    navController!!.navigate(Screens.MapPotions.route.replace(oldValue = "{potionKey}", newValue = potion.key!!))
+                }
             )
             Spacer(modifier = modifier.height(8.dp))
         }

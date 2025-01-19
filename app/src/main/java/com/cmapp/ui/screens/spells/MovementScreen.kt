@@ -179,7 +179,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
 
     // receber varinha do user ou ir buscar a varinha do user
 
-    var spell by remember { mutableStateOf<Spell>(Spell()) }
+    var spell by remember { mutableStateOf<Spell>(Spell()) } //Ir buscar o feitiço a base de dados
     getSpell(spellKey){ spellDb -> spell = spellDb }
 
     Column(

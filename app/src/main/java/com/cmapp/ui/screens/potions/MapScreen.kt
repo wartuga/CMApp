@@ -19,6 +19,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.cmapp.model.data.DataBaseHelper.getPotion
+import com.cmapp.model.data.DataBaseHelper.getSpell
+import com.cmapp.model.domain.database.Potion
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -37,37 +41,50 @@ const val MAP_SIZE = 330
 const val PADDING = 5
 
 @Composable
-fun MapScreen(modifier: Modifier = Modifier, navController: NavHostController?, context: Context?, potionId: Int?) {
+fun MapScreen(modifier: Modifier = Modifier, navController: NavHostController?, context: Context?, potionKey: String?) {
     ScreenSkeleton(
         navController = navController,
         composable = {
-            MapScreenContent(modifier)
+            MapScreenContent(modifier, context, potionKey!!)
         },
         modifier
     )
 }
 
 @Composable
-private fun MapScreenContent(modifier: Modifier) {
-    val ingredients = listOf("Ingredient 1", "Ingredient 2", "Ingredient 3")
-    val effect = "Effect"
+private fun MapScreenContent(modifier: Modifier, context: Context?, potionKey: String) {
+
+    var potion by remember { mutableStateOf<Potion>(Potion()) } //Ir buscar a pocao a base de dados
+    getPotion(potionKey){ potionDb -> potion = potionDb }
+
+    var ingredients = listOf("")
+    potion.ingredients?.let{
+        ingredients = listOf(it)
+        if(it.contains(","))
+            ingredients = it.split(",")
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(modifier = modifier.padding(PADDING.dp)) {
-            Text(
-                text = "Feitiço",
-                color = Color.White,
-                fontSize = TITLE_SIZE.sp
-            )
+            potion.name?.let {
+                Text(
+                    text = it,
+                    color = Color.White,
+                    fontSize = TITLE_SIZE.sp
+                )
+            }
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
-            Text(
-                text = "Effect: $effect",
-                color = Color.White,
-                fontSize = FONT_SIZE.sp
-            )
+            potion.description?.let {
+                Text(
+                    text = it,
+                    color = Color.White,
+                    fontSize = FONT_SIZE.sp
+                )
+            }
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
             Column {
