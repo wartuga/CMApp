@@ -107,7 +107,6 @@ fun LearningScreenContent(
                     navController!!.navigate(Screens.MapPotions.route.replace(oldValue = "{potionKey}", newValue = potion.key!!))
                 }
             )
-            Spacer(modifier = modifier.height(8.dp))
         }
     }
 }

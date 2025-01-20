@@ -1,7 +1,6 @@
 package com.cmapp.ui.screens.social
 
 import android.content.Context
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,7 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
-import com.cmapp.model.data.DataBaseHelper.getSpells
+import com.cmapp.model.data.DataBaseHelper.getLearnedSpells
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.data.toUpperCase
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.RemoveButton
@@ -43,20 +44,27 @@ fun LearnedSpellsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController?,
     context: Context?,
-    friendId: Int?
+    friendUsername: String?
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { LearnedSpellsScreenContent(modifier, navController) },
+        composable = { LearnedSpellsScreenContent(modifier, navController, context, friendUsername) },
         modifier = modifier
     )
 }
 
 @Composable
-fun LearnedSpellsScreenContent(modifier: Modifier, navController: NavHostController?) {
+fun LearnedSpellsScreenContent(
+    modifier: Modifier,
+    navController: NavHostController?,
+    context: Context?,
+    friendUsername: String?
+) {
+
+    var spells by remember { mutableStateOf<List<Spell>>(mutableListOf()) }
+    getLearnedSpells(friendUsername!!){ spellsDb -> spells = spellsDb }
 
     val scrollState = rememberScrollState()
-    val learnedSpells = listOf("EXPELLIARMUS", "LUMOS", "ALOHOMORA")
 
     Column (modifier = modifier.verticalScroll(scrollState)){
 
@@ -66,7 +74,8 @@ fun LearnedSpellsScreenContent(modifier: Modifier, navController: NavHostControl
             username = "Dumbledory",
             composable = { RemoveButton(modifier) },
             modifier = modifier,
-            picture = R.drawable.face, wand = R.drawable.wand_side
+            picture = R.drawable.face,
+            wand = R.drawable.wand_side
         )
 
         Spacer(modifier = modifier.height(24.dp))
@@ -95,22 +104,26 @@ fun LearnedSpellsScreenContent(modifier: Modifier, navController: NavHostControl
                     color = Color.Gray
                 ),
                 modifier = Modifier.padding(start = 10.dp).clickable {
-                    navController!!.navigate(Screens.PotionsSocial.route)
+
+                    //friend.username
+                    navController!!.navigate(Screens.PotionsSocial.route.replace(oldValue = "{friendUsername}", newValue = "FriendTest"))
                 },
             )
         }
 
         Spacer(modifier = modifier.height(16.dp))
 
-        learnedSpells.forEach { spell ->
+        spells.forEach { spell ->
+
             PotionSpellCard(
-                name = spell,
-                description = "Aimed at the legs, causes uncontrollable dancing movement",
+                name = toUpperCase(spell.name!!),
                 image = R.drawable.spell,
-                buttonLabel = "Learn",
-                onButtonClick = {}
+                description = spell.description!!,
+                buttonLabel = "Practice",
+                onButtonClick = {
+                    navController!!.navigate(Screens.MovementSpells.route.replace(oldValue = "{spellKey}", newValue = spell.key!!))
+                }
             )
-            Spacer(modifier = modifier.height(8.dp))
         }
     }
 }

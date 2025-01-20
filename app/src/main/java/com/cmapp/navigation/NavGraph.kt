@@ -70,13 +70,13 @@ fun NavGraph(
         composable(route = Screens.FriendsSocial.route) {
             FriendsListScreen(navController = navController, context = context)
         }
-        composable(route = Screens.SpellsSocial.route + "?id={id}") { navBackStack ->
-            val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            LearnedSpellsScreen(navController = navController, context = context, friendId = id)
+        composable(route = Screens.SpellsSocial.route + "?friendUsername={friendUsername}") { navBackStack ->
+            val friendUsername: String = navBackStack.arguments?.getString("friendUsername").toString()
+            LearnedSpellsScreen(navController = navController, context = context, friendUsername = friendUsername)
         }
-        composable(route = Screens.PotionsSocial.route + "?id={id}") { navBackStack ->
-            val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            LearnedPotionsScreen(navController = navController, context = context, friendId = id)
+        composable(route = Screens.PotionsSocial.route + "?friendUsername={friendUsername}") { navBackStack ->
+            val friendUsername: String = navBackStack.arguments?.getString("friendUsername").toString()
+            LearnedPotionsScreen(navController = navController, context = context, friendUsername = friendUsername)
         }
         composable(route = Screens.WandProfile.route) {
             WandSelectionScreen(navController = navController)

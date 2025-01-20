@@ -191,7 +191,9 @@ private fun FriendsListScreenContent(modifier: Modifier, navController: NavHostC
             UserCard(
                 composable = { RemoveButton(modifier) },
                 modifier = Modifier.clickable{
-                    navController!!.navigate(Screens.SpellsSocial.route)
+
+                    //friend.username
+                    navController!!.navigate(Screens.SpellsSocial.route.replace(oldValue = "{friendUsername}", newValue = "FriendTest"))
                 },
                 picture = R.drawable.face,
                 wand = R.drawable.wand_side,

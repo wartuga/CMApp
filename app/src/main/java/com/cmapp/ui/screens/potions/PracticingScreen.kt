@@ -13,6 +13,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getLearnedPotions
+import com.cmapp.model.data.DataBaseHelper.getLearnedSpells
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.data.toUpperCase
+import com.cmapp.model.domain.database.Potion
+import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
@@ -37,7 +47,7 @@ fun PracticingScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { PracticingScreenContent(modifier, navController) },
+        composable = { PracticingScreenContent(modifier, navController, context) },
         modifier = modifier
     )
 }
@@ -45,9 +55,14 @@ fun PracticingScreen(
 @Composable
 fun PracticingScreenContent(
     modifier: Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
-    val unlockedPotions = listOf("AMORTENTIA", "FELIX FELICIS", "EDURUS")
+    var potions by remember { mutableStateOf<List<Potion>>(mutableListOf()) }
+    getLearnedPotions(getUsername(context!!)){ potionsDb -> potions = potionsDb }
+
+    //USER INFO
+
     val scrollState = rememberScrollState()
 
     Column (modifier = Modifier.verticalScroll(scrollState)){
@@ -84,15 +99,17 @@ fun PracticingScreenContent(
 
         Spacer(modifier = modifier.height(16.dp))
 
-        unlockedPotions.forEach { spell ->
+        potions.forEach { potion ->
+
             PotionSpellCard(
-                name = spell,
-                description = "Love potion that caused a powerful infatuation or obsession in the drinker",
+                name = toUpperCase(potion.name!!),
+                description = potion.description!!,
                 image = R.drawable.potion,
                 buttonLabel = "Practice",
-                onButtonClick = {}
+                onButtonClick = {
+                    navController!!.navigate(Screens.MapPotions.route.replace(oldValue = "{potionKey}", newValue = potion.key!!))
+                }
             )
-            Spacer(modifier = modifier.height(8.dp))
         }
     }
 }

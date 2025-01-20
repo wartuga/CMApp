@@ -12,7 +12,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.compose.rememberNavController
+import com.cmapp.model.data.DataBaseHelper.addLearnedPotion
 import com.cmapp.model.data.DataBaseHelper.addLearnedSpell
+import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.StorageHelper.setUsername
 import com.cmapp.navigation.NavGraph
 import com.cmapp.ui.theme.CMAppTheme
@@ -49,6 +51,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setUsername(this, "Test") //TESTE
+
+        //FRIEND TEST
+        //addLearnedPotion("FriendTest", "-OGyy3IfmE71PjebDJVE")
+        //addLearnedSpell("FriendTest", "-OGvCKrwmDtN0fp9S59J")
 
         enableEdgeToEdge()
         setContent {

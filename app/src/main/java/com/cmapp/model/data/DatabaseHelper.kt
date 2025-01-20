@@ -257,6 +257,58 @@ object DataBaseHelper {
         }
     }
 
+    suspend fun getPotionAsync(potionKey: String): Potion? {
+        return withContext(Dispatchers.IO) {
+            val deferred = CompletableDeferred<Potion?>()
+            getPotion(potionKey) { potion ->
+                deferred.complete(potion)
+            }
+            deferred.await()
+        }
+    }
+
+    fun addLearnedPotion(username: String, potionkey: String): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        database.getReference("usersInfo").child(username).child("potions").child(potionkey).setValue("").addOnCompleteListener { task ->
+
+            if (task.isSuccessful) { completableFuture.complete(true) }
+            else { completableFuture.complete(false) }
+        }
+
+        return completableFuture
+    }
+
+    fun getLearnedPotions(username: String, onResult: (List<Potion>) -> Unit) {
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val learnedPotionsRef = database.getReference("usersInfo").child(username).child("potions")
+            val dataSnapshot = learnedPotionsRef.get().await()
+
+            val potions = mutableListOf<Potion>()
+            val deferredList = mutableListOf<CompletableDeferred<Potion?>>()
+
+            for (snapshot in dataSnapshot.children) {
+                val potionKey = snapshot.key.toString()
+
+                val potionDeferred = CompletableDeferred<Potion?>()
+                launch {
+                    val potion = getPotionAsync(potionKey)
+                    potionDeferred.complete(potion)
+                }
+                deferredList.add(potionDeferred)
+            }
+
+            deferredList.forEach{
+                it.await()
+                potions.add(it.getCompleted()!!)
+            }
+            onResult(potions)
+        }
+    }
+
     private fun isAuthValid(username: String, password: String) =
         isValidUsername(username) &&
         isValidUsernameLength(username) &&
