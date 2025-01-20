@@ -2,6 +2,7 @@ package com.cmapp.ui.screens.potions
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -18,6 +19,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.cmapp.navigation.Screens
+import kotlin.math.pow
+import kotlin.math.sqrt
+
 
 @Composable
 fun ColorCheckerScreen(
@@ -26,8 +31,6 @@ fun ColorCheckerScreen(
     context: Context?,
     potionId: Int?
 ) {
-
-    // UI displays immediately, then requests permission
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -35,15 +38,16 @@ fun ColorCheckerScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CameraCaptureContent()
+        CameraCaptureContent(navController)
     }
 }
 
 @Composable
-fun CameraCaptureContent() {
+fun CameraCaptureContent(navController: NavHostController?) {
+    var validatedColor = false
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var dominantColor by remember { mutableStateOf<Color?>(null) }
-
+    val potionColor = Color.Green
     val imageCaptureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
@@ -58,6 +62,14 @@ fun CameraCaptureContent() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Button(
+            onClick = {
+                imageCaptureLauncher.launch(null)
+            }
+        ) {
+            Text("Back")
+        }
+
         if (imageBitmap != null) {
             Image(
                 bitmap = imageBitmap!!.asImageBitmap(),
@@ -69,23 +81,54 @@ fun CameraCaptureContent() {
         }
 
         if (dominantColor != null) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .padding(16.dp)
-                    .background(dominantColor!!)
-            )
-            Text(text = "Dominant Color: $dominantColor")
+            //Display
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(16.dp)
+                        .background(dominantColor!!)
+                )
+                Text(text = "Dominant Color: $dominantColor")
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(16.dp)
+                        .background(potionColor)
+                )
+                Text(text = "Dominant Color: $dominantColor")
+    //Check if color is correct
+
+                val similar = areColorsSimilar(dominantColor!!, potionColor)
+
+                if(similar){
+                    validatedColor = true
+                }
+
+                val toast = Toast.makeText(LocalContext.current, similar.toString(), Toast.LENGTH_SHORT) // in Activity
+                toast.show()
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                imageCaptureLauncher.launch(null)
+        if(validatedColor){
+            Button(
+                onClick = {
+                    navController!!.navigate(Screens.LearnPotions.route)
+                }
+            ) {
+                Text("Learn new potion")
             }
-        ) {
-            Text("Re-validate")
         }
+        else{
+            Button(
+                onClick = {
+                    imageCaptureLauncher.launch(null)
+                }
+            ) {
+                Text("Re-validate")
+            }
+        }
+
     }
 }
 
@@ -107,6 +150,32 @@ fun calculateDominantColor(bitmap: Bitmap): Color {
         blue = averageBlue.toFloat()
     )
 }
+
+// Euclidean distance between two colors
+fun colorDistance(color1: Color, color2: Color): Float {
+    // RGB components
+    val r1 = (color1.red * 255).toInt()
+    val g1 = (color1.green * 255).toInt()
+    val b1 = (color1.blue * 255).toInt()
+
+    val r2 = (color2.red * 255).toInt()
+    val g2 = (color2.green * 255).toInt()
+    val b2 = (color2.blue * 255).toInt()
+
+    // Euclidean distance
+    return sqrt(
+        ((r1 - r2).toFloat().pow(2)) +
+                ((g1 - g2).toFloat().pow(2)) +
+                ((b1 - b2).toFloat().pow(2))
+    )
+}
+
+// Check based on a distance threshold
+fun areColorsSimilar(color1: Color, color2: Color, threshold: Float = 200f): Boolean {
+    val distance = colorDistance(color1, color2)
+    return distance <= threshold
+}
+
 
 @Preview
 @Composable

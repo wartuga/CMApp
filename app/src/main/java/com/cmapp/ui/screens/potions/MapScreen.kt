@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,7 @@ import androidx.navigation.NavHostController
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -165,30 +167,46 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 userLocation?.let { generateRandomPlaces(5, it) } ?: emptyList()
             }
 
-            GoogleMap(
-                modifier = Modifier.height(450.dp),//.fillMaxSize(),
-                properties = mapProperties,
-                uiSettings = uiSettings,
-                cameraPositionState = cameraPositionState
-            ) {
-                /*userLocation?.let {
-                    Marker(
-                        position = it,
-                        title = "You are here",
-                        snippet = "Current location",
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-                    )
-                }*/
+            // Update camera position when the user moves
+            TrackUserLocation(context) { userLocation ->
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 50.0F)
+            }
+            Box(){
+                GoogleMap(
+                    modifier = Modifier.height(450.dp),//.fillMaxSize(),
+                    properties = mapProperties,
+                    uiSettings = uiSettings,
+                    cameraPositionState = cameraPositionState
+                ) {
+                    /*userLocation?.let {
+                        Marker(
+                            position = it,
+                            title = "You are here",
+                            snippet = "Current location",
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+                        )
+                    }*/
 
-                // Place markers for the random locations
-                places.forEach { place ->
-                    Marker(
-                        position = place,
-                        title = "Ingredient",
-                        snippet = "An ingredient description"
-                    )
+                    // Place markers for the random locations
+                    places.forEach { place ->
+                        Marker(
+                            position = place,
+                            title = "Ingredient",
+                            snippet = "An ingredient description"
+                        )
+                    }
+                }
+                Button(
+                    onClick = {navController!!.navigate(Screens.ColorChecker.route)},
+                    modifier = Modifier
+                        .padding(bottom = 40.dp)
+                        .align(Alignment.BottomCenter),
+                    border = BorderStroke(1.dp, Color.White)
+                ) {
+                    Text(text = "Validate", color = Color.White, fontSize = 24.sp)
                 }
             }
+
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
             Text(
