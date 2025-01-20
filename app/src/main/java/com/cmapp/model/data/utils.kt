@@ -1,5 +1,8 @@
 package com.cmapp.model.data
 
+import androidx.compose.ui.text.toUpperCase
+import java.util.Locale
+
 const val MIN_USERNAME_LEN = 3
 const val MAX_USERNAME_LEN = 20
 const val MIN_PASSWORD_LEN = 8
@@ -16,3 +19,22 @@ fun isValidPassword(password: String) =
 
 fun isValidPasswordLength(password: String) =
     password.length in MIN_PASSWORD_LEN..MAX_PASSWORD_LEN
+
+fun getRandomPotionColor(): String {
+    return "Blue"
+}
+fun toUpperCase(text: String): String{
+    return text.uppercase(Locale.ROOT)
+}
+
+fun getRandomSpellColor(): String {
+    return "Orange"
+}
+
+fun getRandomMovements(): String {
+    return "Up/Down/Right/Left"
+}
+
+fun getRandomTime(): Int {
+    return 45
+}

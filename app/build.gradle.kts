@@ -114,6 +114,8 @@ dependencies {
 
     // Auth Hashing
     implementation("org.mindrot:jbcrypt:0.4")
+
+    implementation("com.google.code.gson:gson:2.10")
 }
 secrets {
     // Optionally specify a different file name containing your secrets.
