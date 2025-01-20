@@ -11,7 +11,6 @@ import com.cmapp.model.data.DataBaseHelper.addSpell
 import com.cmapp.model.data.getRandomMovements
 import com.cmapp.model.data.getRandomPotionColor
 import com.cmapp.model.data.getRandomSpellColor
-import com.cmapp.model.data.getRandomTime
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.model.domain.potterDB.PotterData
@@ -21,10 +20,10 @@ import com.cmapp.network.PotterDBApi
 import com.cmapp.ui.states.PotterUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import java.io.IOException
+import kotlin.math.roundToInt
 
 class PotterViewModel: ViewModel() {
 
@@ -45,8 +44,8 @@ class PotterViewModel: ViewModel() {
     val spells: MutableStateFlow<PotterData<List<PotterSpell>>?> = _spells
 
     init {
-        fetchPotions()
-        //fetchSpells()
+        //fetchPotions()
+        fetchSpells()
     }
 
     private fun fetchPotions() {
@@ -88,9 +87,9 @@ class PotterViewModel: ViewModel() {
             val name = spell.attributes.name
             val description = spell.attributes.effect
             val movements = getRandomMovements()
-            val time = getRandomTime()
+            val time = (movements.size * 2.5).roundToInt()
 
-            addSpell(Spell(color = color, name = name, description = description, movements = movements, time = time)).await()
+            addSpell(Spell(name = name, description = description, color = color, movements = movements, time = time)).await()
         }
     }
 

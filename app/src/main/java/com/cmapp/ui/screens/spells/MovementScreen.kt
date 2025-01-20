@@ -6,11 +6,13 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -21,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,14 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
-import com.cmapp.model.data.DataBaseHelper.getSpell
-import com.cmapp.model.data.DataBaseHelper.getSpells
+import com.cmapp.model.data.DataBaseHelper.getSpellAsync
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
-import kotlin.random.Random
-import kotlin.random.nextInt
 
 @Composable
 fun MovementScreen(
@@ -71,12 +71,18 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
     var wandDirection by remember { mutableStateOf("up") }
     var lastWandDirection by remember { mutableStateOf(wandDirection) }
     var lastTimestamp by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    var move by remember { mutableStateOf("up-right") }
     var moveColor by remember { mutableStateOf(Color.White) }
 
     var lastValueX by remember { mutableFloatStateOf(0F) }
     var positionX by remember { mutableFloatStateOf(0F) }
+
+    // receber varinha do user ou ir buscar a varinha do user
+
+    var spell by remember { mutableStateOf(Spell()) }
+    var previousMove: String? by remember { mutableStateOf(null) }
+    var move by remember { mutableStateOf("up") }
+    var nextMove by remember { mutableStateOf("") }
+    var remainingTime by remember { mutableIntStateOf(59) }
 
     if(context != null) {
         // Initialize SensorManager and Sensor
@@ -154,33 +160,52 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
             )
         }
 
-        // Check if the direction is stable for 2 seconds, then wait 1 second and print
-        LaunchedEffect(wandDirection) {
-            while (true) {
+        // Check if the direction is stable for 1.5 seconds, then wait and print
+        LaunchedEffect(Unit) {
+            val spellDb = getSpellAsync(spellKey)
+
+            spell = spellDb!!
+            move = spellDb.movements[0]
+            remainingTime = spellDb.time!!
+
+            Log.d("spell", spell.toString())
+            var time = 0    // time in milliseconds
+            var i = 1
+            val spellTime = spell.time!! * 1000
+            while (i < spell.movements.size) {
                 delay(100) // Check every 100ms
+                time += 100
                 val currentTime = System.currentTimeMillis()
+
+                remainingTime = spellTime - time
+
+                if (remainingTime < 0) {
+                    Toast.makeText(context, "You run out of time", Toast.LENGTH_LONG).show()
+                    break
+                }
+
                 if (currentTime - lastTimestamp >= 1500L && wandDirection == move) {
                     moveColor = Color.Green
                     delay(250L) // Wait
-                    move = when (Random.nextInt(1..5)) {
-                        1 -> "right"
-                        2 -> "up-right"
-                        3 -> "up"
-                        4 -> "up-left"
-                        else -> "left" // Default image
+
+                    if (i < spell.movements.size) {
+                        previousMove = move
+                        move = spell.movements[i++]
+                        if (i < spell.movements.size)
+                            nextMove = spell.movements[i]
+                        else
+                            nextMove = ""
+                        moveColor = Color.White
+                    } else {
+                        Toast.makeText(context, "You learned a new spell", Toast.LENGTH_LONG).show()
+                        break
                     }
-                    moveColor = Color.White
 
                     lastTimestamp = System.currentTimeMillis()
                 }
             }
         }
     }
-
-    // receber varinha do user ou ir buscar a varinha do user
-
-    var spell by remember { mutableStateOf<Spell>(Spell()) } //Ir buscar o feitiço a base de dados
-    getSpell(spellKey){ spellDb -> spell = spellDb }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -205,7 +230,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
                 colorFilter = ColorFilter.tint(Color.White)
             )
             Text(
-                text = "${spell.time}s",
+                text = "${remainingTime / 1000}s",
                 color = Color.White,
                 fontSize = 20.sp
             )
@@ -216,22 +241,60 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            val imageResource = when (move) {
+            // previous movement
+            val previousRes = when (previousMove) {
                 "right" -> R.drawable.arrow_right
                 "up-right" -> R.drawable.arrow_up_right
                 "up" -> R.drawable.arrow_up
                 "up-left" -> R.drawable.arrow_up_left
                 "left" -> R.drawable.arrow_left
-                else -> R.drawable.arrow_right // Default image
+                else -> null // return null for invalid cases
             }
-
+            if(previousRes != null){
+                Image(
+                    painter = painterResource(id = previousRes),
+                    contentDescription = "Movimento",
+                    modifier = Modifier.size(50.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            } else {
+                Spacer(Modifier.size(50.dp))
+            }
+            // current movement
             Image(
-                painter = painterResource(id = imageResource),
+                painter = painterResource(id =
+                    when (move) {
+                        "right" -> R.drawable.arrow_right
+                        "up-right" -> R.drawable.arrow_up_right
+                        "up" -> R.drawable.arrow_up
+                        "up-left" -> R.drawable.arrow_up_left
+                        "left" -> R.drawable.arrow_left
+                        else -> R.drawable.arrow_up
+                    }
+                ),
                 contentDescription = "Movimento",
                 modifier = Modifier.size(50.dp),
                 colorFilter = ColorFilter.tint(moveColor)
             )
-            //}
+            // next movement
+            val nextRes = when (nextMove) {
+                "right" -> R.drawable.arrow_right
+                "up-right" -> R.drawable.arrow_up_right
+                "up" -> R.drawable.arrow_up
+                "up-left" -> R.drawable.arrow_up_left
+                "left" -> R.drawable.arrow_left
+                else -> null // return null for invalid cases
+            }
+            if(nextRes != null){
+                Image(
+                    painter = painterResource(id = nextRes),
+                    contentDescription = "Movimento",
+                    modifier = Modifier.size(50.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            } else {
+                Spacer(Modifier.size(50.dp))
+            }
         }
         Box(
             modifier = Modifier.fillMaxSize() // Make the Box fill the screen

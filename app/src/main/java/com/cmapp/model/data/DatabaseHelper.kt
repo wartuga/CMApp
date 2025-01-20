@@ -178,9 +178,15 @@ object DataBaseHelper {
                 val spellList = mutableListOf<Spell>()
 
                 for(snapshot in dataSnapshot.children){
-                    val spell = snapshot.getValue(Spell::class.java)
-                    spell?.key = snapshot.key.toString()
-                    spell?.let { spellList.add(it) }
+                    val spell = Spell(
+                        key = snapshot.key.toString(),
+                        color = snapshot.child("color").getValue(String::class.java),
+                        description = snapshot.child("description").getValue(String::class.java),
+                        movements = snapshot.child("movements").children.map { it.getValue(String::class.java) ?: "" },
+                        name = snapshot.child("name").getValue(String::class.java),
+                        time = snapshot.child("time").getValue(Int::class.java)
+                    )
+                    spellList.add(spell)
                 }
 
                 onResult(spellList)
@@ -196,9 +202,15 @@ object DataBaseHelper {
 
         database.getReference("spells").child(spellKey).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val spell = dataSnapshot.getValue(Spell::class.java)
-                spell?.key = dataSnapshot.key.toString()
-                onResult(spell!!)
+                val spell = Spell(
+                    key = dataSnapshot.key.toString(),
+                    color = dataSnapshot.child("color").getValue(String::class.java),
+                    description = dataSnapshot.child("description").getValue(String::class.java),
+                    movements = dataSnapshot.child("movements").children.map { it.getValue(String::class.java) ?: "" },
+                    name = dataSnapshot.child("name").getValue(String::class.java),
+                    time = dataSnapshot.child("time").getValue(Int::class.java)
+                )
+                onResult(spell)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {}
