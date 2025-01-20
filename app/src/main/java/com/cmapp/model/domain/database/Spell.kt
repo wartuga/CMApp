@@ -10,7 +10,7 @@ open class Spell (
     open var key: String? = null,
     open val color: String? = null,
     open val description: String? = null,
-    open val movements: String? = null,
+    open val movements: List<String> = emptyList(),
     open val name: String? = null,
     open val time: Int? = null
 ): Serializable

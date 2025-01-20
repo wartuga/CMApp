@@ -1,10 +1,6 @@
 package com.cmapp.ui.screens.spells
 
 import android.content.Context
-import android.net.Uri
-import android.os.Bundle
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,10 +35,6 @@ import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
-import com.cmapp.ui.screens.utils.SwapButton
-import com.google.gson.Gson
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 @Composable
 fun LearningScreen(
@@ -64,7 +55,7 @@ fun LearningScreenContent(
     navController: NavHostController?
 ) {
     var spells by remember { mutableStateOf<List<Spell>>(mutableListOf()) }
-    getSpells(){ spellsDb -> spells = spellsDb }
+    getSpells { spellsDb -> spells = spellsDb }
 
     val scrollState = rememberScrollState()
 

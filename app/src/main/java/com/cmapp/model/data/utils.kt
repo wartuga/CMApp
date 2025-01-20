@@ -1,6 +1,6 @@
 package com.cmapp.model.data
 
-import androidx.compose.ui.text.toUpperCase
+import java.lang.Math.random
 import java.util.Locale
 
 const val MIN_USERNAME_LEN = 3
@@ -31,10 +31,7 @@ fun getRandomSpellColor(): String {
     return "Orange"
 }
 
-fun getRandomMovements(): String {
-    return "Up/Down/Right/Left"
-}
-
-fun getRandomTime(): Int {
-    return 45
+fun getRandomMovements(): List<String> {
+    val movList = listOf("right","up-right","up","up-left","left")
+    return List((10..20).random()) { _ -> movList.random() }
 }
