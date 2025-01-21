@@ -20,16 +20,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.cmapp.navigation.Screens
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import kotlin.math.pow
 import kotlin.math.sqrt
-
 
 @Composable
 fun ColorCheckerScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController?,
     context: Context?,
-    potionId: Int?
+    potionColor: String?
 ) {
     Column(
         modifier = Modifier
@@ -38,16 +39,24 @@ fun ColorCheckerScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CameraCaptureContent(navController)
+        val decodedColor = try {
+            potionColor?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+        } catch (e: Exception) {
+            null
+        }
+
+        //println(potionColor!!)
+        CameraCaptureContent(navController, potionColor!!)
     }
 }
 
 @Composable
-fun CameraCaptureContent(navController: NavHostController?) {
+fun CameraCaptureContent(navController: NavHostController?, potionColorName:String) {
     var validatedColor = false
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var dominantColor by remember { mutableStateOf<Color?>(null) }
-    val potionColor = Color.Green
+    //val potionColor = Color.Green
+    val potionColor = getColorFromName(potionColorName)
     val imageCaptureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
@@ -93,12 +102,12 @@ fun CameraCaptureContent(navController: NavHostController?) {
                     modifier = Modifier
                         .size(100.dp)
                         .padding(16.dp)
-                        .background(potionColor)
+                        .background(potionColor!!)
                 )
                 Text(text = "Dominant Color: $dominantColor")
     //Check if color is correct
 
-                val similar = areColorsSimilar(dominantColor!!, potionColor)
+                val similar = areColorsSimilar(dominantColor!!, potionColor!!)
 
                 if(similar){
                     validatedColor = true
@@ -176,12 +185,34 @@ fun areColorsSimilar(color1: Color, color2: Color, threshold: Float = 200f): Boo
     return distance <= threshold
 }
 
+fun getColorFromNameIgnoreCase(colorName: String): Color? {
+    return Color::class.java.declaredFields
+        .firstOrNull { it.name.equals(colorName, ignoreCase = true) }
+        ?.let { field -> field.get(null) as? Color }
+}
+val colorNameMap = mapOf(
+    "Blue" to Color.Blue,
+    "Red" to Color.Red,
+    "Green" to Color.Green,
+    "Yellow" to Color.Yellow,
+    "Black" to Color.Black,
+    "White" to Color.White,
+    "Gray" to Color.Gray,
+    "Cyan" to Color.Cyan,
+    "Magenta" to Color.Magenta
+    // Add more colors as needed
+)
+
+// Function to get a Color object from a string
+fun getColorFromName(colorName: String): Color? {
+    return colorNameMap[colorName]
+}
 
 @Preview
 @Composable
 fun ColorCheckerScreenPreview() {
     ColorCheckerScreen(
         context = LocalContext.current, modifier = Modifier, navController = null,
-        potionId = 1
+        potionColor = null
     )
 }

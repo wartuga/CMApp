@@ -78,9 +78,9 @@ fun NavGraph(
         composable(route = Screens.WandProfile.route) {
             WandSelectionScreen(navController = navController)
         }
-        composable(route = Screens.ColorChecker.route + "?id={id}") { navBackStack ->
-            val id: Int = navBackStack.arguments?.getString("id")?.toIntOrNull()?:0
-            ColorCheckerScreen(navController = navController, context = context, potionId = id)
+        composable(route = Screens.ColorChecker.route + "?potionColor={potionColor}") { navBackStack ->
+            val potionColor: String = navBackStack.arguments?.getString("potionColor").toString()
+            ColorCheckerScreen(navController = navController, context = context, potionColor = potionColor)
         }
     }
 }

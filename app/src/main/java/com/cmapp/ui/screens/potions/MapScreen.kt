@@ -29,9 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.model.data.DataBaseHelper.getPotion
-import com.cmapp.model.data.DataBaseHelper.getSpell
 import com.cmapp.model.domain.database.Potion
-import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.google.android.gms.location.LocationServices
@@ -43,6 +41,8 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlin.random.Random
 
 const val TITLE_SIZE = 28
@@ -234,15 +234,34 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 fontSize = FONT_SIZE.sp
             )
         }
+        val potionColor = potion.color
         Row {
             Button(
-                onClick = {navController!!.navigate(Screens.ColorChecker.route)},
+                onClick = { potionColor?.let { color ->
+                    navController?.navigate(Screens.ColorChecker.route.replace("{potionColor}", color))
+                } ?: run {
+                    // Handle the null case (optional)
+                    println("Potion color is null")
+                }},
                 modifier = Modifier
                     .padding(bottom = 40.dp),
                 border = BorderStroke(1.dp, Color.White)
             ) {
                 Text(text = "Validate", color = Color.White, fontSize = 24.sp)
             }
+            Button(onClick = {
+                potionColor?.let { color ->
+                    val encodedColor = URLEncoder.encode(color, StandardCharsets.UTF_8.toString())
+                    navController!!.navigate(Screens.ColorChecker.route + "?potionColor=$encodedColor")
+                }
+            },
+                modifier = Modifier
+                    .padding(bottom = 40.dp),
+                border = BorderStroke(1.dp, Color.White)
+            ) {
+                Text(text = "Validate", color = Color.White, fontSize = 24.sp)
+            }
+
         }
     }
 }
