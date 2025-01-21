@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.network.HttpException
 import com.cmapp.model.data.DataBaseHelper.addPotion
-import com.cmapp.model.data.DataBaseHelper.addSpell
+import com.cmapp.model.data.addSpell
 import com.cmapp.model.data.getRandomMovements
 import com.cmapp.model.data.getRandomPotionColor
 import com.cmapp.model.data.getRandomSpellColor

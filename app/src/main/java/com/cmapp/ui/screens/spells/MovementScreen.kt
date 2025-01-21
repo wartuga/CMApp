@@ -42,7 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
-import com.cmapp.model.data.DataBaseHelper.getSpellAsync
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.data.addLearnedSpell
+import com.cmapp.model.data.getSpellAsync
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlinx.coroutines.delay
@@ -57,13 +59,13 @@ fun MovementScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { MovementScreenContent(modifier, context, spellKey!!) },
+        composable = { MovementScreenContent(modifier, navController, context, spellKey!!) },
         modifier = modifier
     )
 }
 
 @Composable
-private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKey: String) {
+private fun MovementScreenContent(modifier: Modifier, navController: NavHostController?, context: Context?, spellKey: String) {
 
     val configuration = LocalConfiguration.current
 
@@ -163,14 +165,15 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
         // Check if the direction is stable for 1.5 seconds, then wait and print
         LaunchedEffect(Unit) {
             val spellDb = getSpellAsync(spellKey)
+            var i = 0
 
             spell = spellDb!!
-            move = spellDb.movements[0]
+            move = spellDb.movements[i]
+            nextMove = spellDb.movements[++i]
             remainingTime = spellDb.time!!
 
             Log.d("spell", spell.toString())
             var time = 0    // time in milliseconds
-            var i = 1
             val spellTime = spell.time!! * 1000
             while (i < spell.movements.size) {
                 delay(100) // Check every 100ms
@@ -181,6 +184,7 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
 
                 if (remainingTime < 0) {
                     Toast.makeText(context, "You run out of time", Toast.LENGTH_LONG).show()
+                    navController?.popBackStack()
                     break
                 }
 
@@ -198,6 +202,9 @@ private fun MovementScreenContent(modifier: Modifier, context: Context?, spellKe
                         moveColor = Color.White
                     } else {
                         Toast.makeText(context, "You learned a new spell", Toast.LENGTH_LONG).show()
+                        val username: String = getUsername(context)
+                        addLearnedSpell(username, spellKey)
+                        navController?.popBackStack()
                         break
                     }
 

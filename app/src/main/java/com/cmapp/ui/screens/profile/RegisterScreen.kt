@@ -1,6 +1,7 @@
 package com.cmapp.ui.screens.profile
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -77,7 +78,7 @@ fun RegisterScreenContent(
                                     setUsername(context!!, username)
                                     navController?.navigate(Screens.WandProfile.route)
                                             },
-                                onError = { /* apresentar toast */ }
+                                onError = { Toast.makeText(context, "Register Failed", Toast.LENGTH_LONG).show() }
                             )
                         },
                         content = { Text("Register") }

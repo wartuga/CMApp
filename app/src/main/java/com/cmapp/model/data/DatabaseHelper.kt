@@ -3,6 +3,7 @@ package com.cmapp.model.data
 import android.util.Log
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.model.domain.database.Spell
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -24,6 +25,29 @@ object DataBaseHelper {
             .setPersistenceEnabled(false)
     val database =
         FirebaseDatabase.getInstance("https://hogwarts-apprentice-default-rtdb.europe-west1.firebasedatabase.app/")
+
+    fun addNotificationListener(onNotificationReceived: (String, Spell) -> Unit) {
+        val myRef = database.getReference("notifications")
+
+        myRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                // A new notification has been added
+                val username = snapshot.key // The username is the child key
+                val spell = snapshot.getValue(Spell::class.java) // The spellKey is the value
+
+                if (username != null && spell != null) {
+                    onNotificationReceived(username, spell)
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("RealtimeDB", "Database error: ${error.message}")
+            }
+        })
+    }
 
     fun registerUser(
         username: String,
@@ -155,118 +179,6 @@ object DataBaseHelper {
 
             override fun onCancelled(databaseError: DatabaseError) {}
         })
-    }
-
-    fun addSpell(spell: Spell): CompletableFuture<Boolean> {
-
-        val completableFuture = CompletableFuture<Boolean>()
-
-        database.getReference("spells").push().setValue(spell).addOnCompleteListener { task ->
-
-            if (task.isSuccessful) { completableFuture.complete(true) }
-            else { completableFuture.complete(false) }
-        }
-
-        return completableFuture
-    }
-
-    fun getSpells(onResult: (List<Spell>) -> Unit) {
-
-        database.getReference("spells").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-
-                val spellList = mutableListOf<Spell>()
-
-                for(snapshot in dataSnapshot.children){
-                    val spell = Spell(
-                        key = snapshot.key.toString(),
-                        color = snapshot.child("color").getValue(String::class.java),
-                        description = snapshot.child("description").getValue(String::class.java),
-                        movements = snapshot.child("movements").children.map { it.getValue(String::class.java) ?: "" },
-                        name = snapshot.child("name").getValue(String::class.java),
-                        time = snapshot.child("time").getValue(Int::class.java)
-                    )
-                    spellList.add(spell)
-                }
-
-                onResult(spellList)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                println("Error retrieving data: ${error.message}")
-            }
-        })
-    }
-
-    fun getSpell(spellKey:String, onResult: (Spell) -> Unit){
-
-        database.getReference("spells").child(spellKey).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val spell = Spell(
-                    key = dataSnapshot.key.toString(),
-                    color = dataSnapshot.child("color").getValue(String::class.java),
-                    description = dataSnapshot.child("description").getValue(String::class.java),
-                    movements = dataSnapshot.child("movements").children.map { it.getValue(String::class.java) ?: "" },
-                    name = dataSnapshot.child("name").getValue(String::class.java),
-                    time = dataSnapshot.child("time").getValue(Int::class.java)
-                )
-                onResult(spell)
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-    }
-
-    suspend fun getSpellAsync(spellKey: String): Spell? {
-        return withContext(Dispatchers.IO) {
-            val deferred = CompletableDeferred<Spell?>()
-            getSpell(spellKey) { spell ->
-                deferred.complete(spell)
-            }
-            deferred.await()
-        }
-    }
-
-    fun addLearnedSpell(username: String, spellKey: String): CompletableFuture<Boolean> {
-
-        val completableFuture = CompletableFuture<Boolean>()
-
-        database.getReference("usersInfo").child(username).child("spells").child(spellKey).setValue("").addOnCompleteListener { task ->
-
-            if (task.isSuccessful) { completableFuture.complete(true) }
-            else { completableFuture.complete(false) }
-        }
-
-        return completableFuture
-    }
-
-    fun getLearnedSpells(username: String, onResult: (List<Spell>) -> Unit) {
-
-        CoroutineScope(Dispatchers.IO).launch {
-
-            val learnedSpellsRef = database.getReference("usersInfo").child(username).child("spells")
-            val dataSnapshot = learnedSpellsRef.get().await()
-
-            val spells = mutableListOf<Spell>()
-            val deferredList = mutableListOf<CompletableDeferred<Spell?>>()
-
-            for (snapshot in dataSnapshot.children) {
-                val spellKey = snapshot.key.toString()
-
-                val spellDeferred = CompletableDeferred<Spell?>()
-                launch {
-                    val spell = getSpellAsync(spellKey)
-                    spellDeferred.complete(spell)
-                }
-                deferredList.add(spellDeferred)
-            }
-
-            deferredList.forEach{
-                it.await()
-                spells.add(it.getCompleted()!!)
-            }
-            onResult(spells)
-        }
     }
 
     suspend fun getPotionAsync(potionKey: String): Potion? {

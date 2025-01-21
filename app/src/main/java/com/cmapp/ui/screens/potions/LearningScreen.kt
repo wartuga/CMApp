@@ -30,10 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getPotions
-import com.cmapp.model.data.DataBaseHelper.getSpells
 import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Potion
-import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.ScreenSkeleton
