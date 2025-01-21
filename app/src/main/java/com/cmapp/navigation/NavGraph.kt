@@ -25,7 +25,7 @@ fun NavGraph(
 ) {
     NavHost (
         navController = navController,
-        startDestination = Screens.LearnSpells.route
+        startDestination = Screens.Login.route
 
         //Populate database
         //startDestination = Screens.Data.route

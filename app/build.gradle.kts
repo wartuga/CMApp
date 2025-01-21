@@ -86,6 +86,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.5.0"))
     implementation("com.google.firebase:firebase-database-ktx:21.0.0")
     implementation("com.google.firebase:firebase-storage-ktx")
+    // notifications
+    //implementation("com.google.firebase:firebase-messaging:23.1.2")
     implementation("com.firebaseui:firebase-ui-database:8.0.2")
     implementation(libs.androidx.navigation.compose)
 

@@ -1,6 +1,7 @@
 package com.cmapp.ui.screens.profile
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,8 +77,8 @@ fun LoginScreenContent(
                                 onSuccess = {
                                     setUsername(context!!, username)
                                     navController?.navigate(Screens.LearnSpells.route)
-                                            },
-                                onError = { /* apresentar toast */ }
+                                },
+                                onError = { Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show() }
                             )
                         },
                         content = { Text("Login") }
