@@ -2,6 +2,11 @@ package com.cmapp.ui.screens.potions
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.os.Looper
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -28,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -42,6 +48,7 @@ import com.cmapp.model.domain.database.Potion
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -217,13 +224,15 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                         icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
                     )
                 }*/
-
+            
                 // Place markers for the random locations
+                val markerBitmap = createNumberBitmap(context, 2)
                 places.forEach { place ->
                     Marker(
                         position = place,
                         title = "Ingredient",
-                        snippet = "An ingredient description"
+                        snippet = "An ingredient description",
+                        icon = BitmapDescriptorFactory.fromBitmap(markerBitmap)
                     )
                 }
             }
@@ -364,4 +373,35 @@ fun generateRandomPlaces(numberPlaces: Int, location: LatLng): List<LatLng> {
 @Composable
 fun MapScreenPreview() {
     MapScreen(modifier = Modifier, null, null, null)
+}
+
+fun createNumberBitmap(context: Context, number: Int): Bitmap {
+    val markerSize = 75
+    val bitmap = Bitmap.createBitmap(markerSize, markerSize, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+
+    // Paint for the circle
+    val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        //color = android.graphics.Color.BLUE//argb(1, 102, 0, 204)// Circle color
+        color = Color(0xFF9933FF).toArgb()
+        style = Paint.Style.FILL
+    }
+
+    // Paint for the number
+    val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.WHITE
+        textSize = 32f
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.DEFAULT_BOLD
+    }
+
+    // Draw the circle
+    val radius = markerSize / 2f
+    canvas.drawCircle(radius, radius, radius, circlePaint)
+
+    // Draw the number in the center of the circle
+    val textY = radius - (textPaint.descent() + textPaint.ascent()) / 2
+    canvas.drawText(number.toString(), radius, textY, textPaint)
+
+    return bitmap
 }
