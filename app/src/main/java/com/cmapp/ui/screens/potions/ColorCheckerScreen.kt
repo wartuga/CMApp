@@ -206,11 +206,6 @@ fun areColorsSimilar(color1: Color, color2: Color, threshold: Float = 200f): Boo
     return distance <= threshold
 }
 
-fun getColorFromNameIgnoreCase(colorName: String): Color? {
-    return Color::class.java.declaredFields
-        .firstOrNull { it.name.equals(colorName, ignoreCase = true) }
-        ?.let { field -> field.get(null) as? Color }
-}
 val colorNameMap = mapOf(
     "Blue" to Color.Blue,
     "Red" to Color.Red,

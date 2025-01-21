@@ -5,19 +5,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Looper
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -205,7 +201,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 userLocation?.let { generateRandomPlaces(5, it) } ?: emptyList()
             }
 
-            // Update camera position when the user moves
+            // Update camera position when the user moves - this isn't working
 //            TrackUserLocation(context) { userLocation ->
 //                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 30.0F)
 //            }
@@ -236,52 +232,6 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                     )
                 }
             }
-//            Box(
-//                modifier = Modifier
-//                    .weight(1f) // This makes the map take up the remaining vertical space
-//                    .fillMaxWidth()
-//                    .background(color = Color.Blue)
-//            ){
-//                Text(text = "Validate", color = Color.White, fontSize = 24.sp)
-//                GoogleMap(
-//                    modifier = Modifier.fillMaxHeight(),//.height(MAP_SIZE.dp),//.fillMaxSize(),
-//                    properties = mapProperties,
-//                    uiSettings = uiSettings,
-//                    cameraPositionState = cameraPositionState
-//                ) {
-//                    /*userLocation?.let {
-//                        Marker(
-//                            position = it,
-//                            title = "You are here",
-//                            snippet = "Current location",
-//                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-//                        )
-//                    }*/
-//
-//                    // Place markers for the random locations
-//                    places.forEach { place ->
-//                        Marker(
-//                            position = place,
-//                            title = "Ingredient",
-//                            snippet = "An ingredient description"
-//                        )
-//                    }
-//                }
-//
-//                Button(onClick = {
-//                    potionColor?.let { color ->
-//                        val encodedColor = URLEncoder.encode(color, StandardCharsets.UTF_8.toString())
-//                        navController!!.navigate(Screens.ColorChecker.route + "?potionColor=$encodedColor")
-//                    }
-//                },
-//                    modifier = Modifier
-//                        .padding(bottom = 40.dp)
-//                        .align(Alignment.BottomCenter),
-//                    border = BorderStroke(1.dp, Color.White)
-//                ) {
-//                    Text(text = "Validate", color = Color.White, fontSize = 24.sp)
-//                }
-//            }
 
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
