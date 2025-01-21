@@ -4,10 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -100,7 +104,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
 
     var potion by remember { mutableStateOf<Potion>(Potion()) } //Ir buscar a pocao a base de dados
     getPotion(potionKey){ potionDb -> potion = potionDb }
-
+    val potionColor = potion.color
     var ingredients = listOf("")
     potion.ingredients?.let{
         ingredients = listOf(it)
@@ -110,8 +114,9 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
 
     Column(
 
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxSize().fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(modifier = modifier.padding(PADDING.dp)) {
             potion.name?.let {
@@ -126,6 +131,15 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             potion.description?.let {
                 Text(
                     text = it,
+                    color = Color.White,
+                    fontSize = FONT_SIZE.sp
+                )
+            }
+        }
+        Row(modifier = modifier.padding(PADDING.dp)) {
+           potionColor?.let {
+                Text(
+                    text = "Color: $it",
                     color = Color.White,
                     fontSize = FONT_SIZE.sp
                 )
@@ -158,7 +172,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 fontSize = FONT_SIZE.sp
             )
         }
-        Row(modifier = modifier.padding(PADDING.dp)) {
+        Row(modifier = modifier.padding(PADDING.dp).weight(1f) ) {
             val context = LocalContext.current
             var uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
             var mapProperties by remember {
@@ -180,44 +194,80 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             }
 
             // Update camera position when the user moves
-            TrackUserLocation(context) { userLocation ->
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 50.0F)
-            }
-            Box(){
-                GoogleMap(
-                    modifier = Modifier.height(450.dp),//.fillMaxSize(),
-                    properties = mapProperties,
-                    uiSettings = uiSettings,
-                    cameraPositionState = cameraPositionState
-                ) {
-                    /*userLocation?.let {
-                        Marker(
-                            position = it,
-                            title = "You are here",
-                            snippet = "Current location",
-                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-                        )
-                    }*/
+//            TrackUserLocation(context) { userLocation ->
+//                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 30.0F)
+//            }
+            GoogleMap(
+                modifier = Modifier.weight(1f) // Takes remaining vertical space
+                    .fillMaxWidth(),//.height(MAP_SIZE.dp),//.fillMaxSize(),
+                properties = mapProperties,
+                uiSettings = uiSettings,
+                cameraPositionState = cameraPositionState
+            ) {
+                /*userLocation?.let {
+                    Marker(
+                        position = it,
+                        title = "You are here",
+                        snippet = "Current location",
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+                    )
+                }*/
 
-                    // Place markers for the random locations
-                    places.forEach { place ->
-                        Marker(
-                            position = place,
-                            title = "Ingredient",
-                            snippet = "An ingredient description"
-                        )
-                    }
-                }
-                Button(
-                    onClick = {navController!!.navigate(Screens.ColorChecker.route)},
-                    modifier = Modifier
-                        .padding(bottom = 40.dp)
-                        .align(Alignment.BottomCenter),
-                    border = BorderStroke(1.dp, Color.White)
-                ) {
-                    Text(text = "Validate", color = Color.White, fontSize = 24.sp)
+                // Place markers for the random locations
+                places.forEach { place ->
+                    Marker(
+                        position = place,
+                        title = "Ingredient",
+                        snippet = "An ingredient description"
+                    )
                 }
             }
+//            Box(
+//                modifier = Modifier
+//                    .weight(1f) // This makes the map take up the remaining vertical space
+//                    .fillMaxWidth()
+//                    .background(color = Color.Blue)
+//            ){
+//                Text(text = "Validate", color = Color.White, fontSize = 24.sp)
+//                GoogleMap(
+//                    modifier = Modifier.fillMaxHeight(),//.height(MAP_SIZE.dp),//.fillMaxSize(),
+//                    properties = mapProperties,
+//                    uiSettings = uiSettings,
+//                    cameraPositionState = cameraPositionState
+//                ) {
+//                    /*userLocation?.let {
+//                        Marker(
+//                            position = it,
+//                            title = "You are here",
+//                            snippet = "Current location",
+//                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+//                        )
+//                    }*/
+//
+//                    // Place markers for the random locations
+//                    places.forEach { place ->
+//                        Marker(
+//                            position = place,
+//                            title = "Ingredient",
+//                            snippet = "An ingredient description"
+//                        )
+//                    }
+//                }
+//
+//                Button(onClick = {
+//                    potionColor?.let { color ->
+//                        val encodedColor = URLEncoder.encode(color, StandardCharsets.UTF_8.toString())
+//                        navController!!.navigate(Screens.ColorChecker.route + "?potionColor=$encodedColor")
+//                    }
+//                },
+//                    modifier = Modifier
+//                        .padding(bottom = 40.dp)
+//                        .align(Alignment.BottomCenter),
+//                    border = BorderStroke(1.dp, Color.White)
+//                ) {
+//                    Text(text = "Validate", color = Color.White, fontSize = 24.sp)
+//                }
+//            }
 
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
@@ -234,21 +284,8 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 fontSize = FONT_SIZE.sp
             )
         }
-        val potionColor = potion.color
+
         Row {
-            Button(
-                onClick = { potionColor?.let { color ->
-                    navController?.navigate(Screens.ColorChecker.route.replace("{potionColor}", color))
-                } ?: run {
-                    // Handle the null case (optional)
-                    println("Potion color is null")
-                }},
-                modifier = Modifier
-                    .padding(bottom = 40.dp),
-                border = BorderStroke(1.dp, Color.White)
-            ) {
-                Text(text = "Validate", color = Color.White, fontSize = 24.sp)
-            }
             Button(onClick = {
                 potionColor?.let { color ->
                     val encodedColor = URLEncoder.encode(color, StandardCharsets.UTF_8.toString())

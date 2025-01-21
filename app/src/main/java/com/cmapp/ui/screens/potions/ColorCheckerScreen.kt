@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.cmapp.navigation.Screens
+import com.cmapp.ui.screens.utils.ScreenSkeleton
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.math.pow
@@ -32,23 +34,31 @@ fun ColorCheckerScreen(
     context: Context?,
     potionColor: String?
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val decodedColor = try {
-            potionColor?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
-        } catch (e: Exception) {
-            null
-        }
+    ScreenSkeleton(
+        navController = navController,
+        composable = {  CameraCaptureContent(navController, potionColor!!) },
+        modifier = modifier
+    )
+
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.Gray)
+//            .padding(16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center,
+//
+//    ) {
+//        val decodedColor = try {
+//            potionColor?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
+//        } catch (e: Exception) {
+//            null
+//        }
 
         //println(potionColor!!)
-        CameraCaptureContent(navController, potionColor!!)
+       //
     }
-}
+
 
 @Composable
 fun CameraCaptureContent(navController: NavHostController?, potionColorName:String) {
@@ -69,27 +79,34 @@ fun CameraCaptureContent(navController: NavHostController?, potionColorName:Stri
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxSize().padding(top = 20.dp, bottom = 40.dp)
+
     ) {
         Button(
             onClick = {
                 imageCaptureLauncher.launch(null)
-            }
+            },
+            modifier = Modifier
+                .padding(bottom = 40.dp)
+                .align(Alignment.Start),
+            border = BorderStroke(1.dp, Color.White)
         ) {
             Text("Back")
         }
 
-        if (imageBitmap != null) {
-            Image(
-                bitmap = imageBitmap!!.asImageBitmap(),
-                contentDescription = "Captured Image",
-                modifier = Modifier
-                    .size(200.dp)
-                    .padding(16.dp)
-            )
-        }
+//        if (imageBitmap != null) {
+//            Image(
+//                bitmap = imageBitmap!!.asImageBitmap(),
+//                contentDescription = "Captured Image",
+//                modifier = Modifier
+//                    .size(200.dp)
+//                    .padding(16.dp)
+//            )
+//        }
 
         if (dominantColor != null) {
+            Text(text = "Your potion's color:")
             //Display
                 Box(
                     modifier = Modifier
@@ -98,28 +115,31 @@ fun CameraCaptureContent(navController: NavHostController?, potionColorName:Stri
                         .background(dominantColor!!)
                 )
                 Text(text = "Dominant Color: $dominantColor")
+
+                Text(text = "How your potion should look like:")
                 Box(
                     modifier = Modifier
                         .size(100.dp)
                         .padding(16.dp)
                         .background(potionColor!!)
                 )
-                Text(text = "Dominant Color: $dominantColor")
-    //Check if color is correct
+                Text(text = "Dominant Color: $potionColor")
 
+                //Check if color is correct
                 val similar = areColorsSimilar(dominantColor!!, potionColor!!)
 
                 if(similar){
                     validatedColor = true
+
                 }
 
                 val toast = Toast.makeText(LocalContext.current, similar.toString(), Toast.LENGTH_SHORT) // in Activity
                 toast.show()
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))
         if(validatedColor){
+            Text(text = "Good job! Go on and learn new potions.")
             Button(
                 onClick = {
                     navController!!.navigate(Screens.LearnPotions.route)
@@ -129,6 +149,7 @@ fun CameraCaptureContent(navController: NavHostController?, potionColorName:Stri
             }
         }
         else{
+            Text(text = "You should try again.")
             Button(
                 onClick = {
                     imageCaptureLauncher.launch(null)
