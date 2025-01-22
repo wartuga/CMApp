@@ -62,11 +62,22 @@ object DataBaseHelper {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        if(!isAuthValid(username, password)){
-            Log.d("AuthValid", "Failed")
+        if(!isValidUsernameLength(username)){
+            onError("Username must have 3 to 20 characters")
             return
         }
-        Log.d("AuthValid", "Passed")
+        if(!isValidUsername(username)){
+            onError("Username cannot have special characters")
+            return
+        }
+        if(!isValidPasswordLength(password)){
+            onError("Password must have 8 to 30 characters")
+            return
+        }
+        if(!isValidPassword(password)){
+            onError("Password must include lowercase, uppercase, numbers, and special characters")
+            return
+        }
 
         val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
 
@@ -95,12 +106,6 @@ object DataBaseHelper {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        if(!isAuthValid(username, password)){
-            Log.d("AuthValid", "Failed")
-            return
-        }
-        Log.d("AuthValid", "Passed")
-
         val usernameRef = database.getReference("accounts")
 
         usernameRef.child(username).get()
@@ -214,7 +219,7 @@ object DataBaseHelper {
 
         val completableFuture = CompletableFuture<Boolean>()
 
-        database.getReference("usersInfo").child(friendUsername).child("requests").child(username).setValue("").addOnCompleteListener { task ->
+        database.getReference("usersInfo").child(friendUsername).child("requests").setValue(username).addOnCompleteListener { task ->
 
             if (task.isSuccessful) {
                 completableFuture.complete(true)
@@ -481,10 +486,4 @@ object DataBaseHelper {
                 onComplete(false, "")
             }
     }
-
-    private fun isAuthValid(username: String, password: String) =
-        isValidUsername(username) &&
-        isValidUsernameLength(username) &&
-        isValidPassword(password) &&
-        isValidPasswordLength(password)
 }
