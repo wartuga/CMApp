@@ -72,24 +72,16 @@ fun MovementScreen(
 @Composable
 private fun MovementScreenContent(modifier: Modifier, navController: NavHostController?, context: Context?, spellKey: String) {
 
-
-
-    val configuration = LocalConfiguration.current
-
     var imageRotationAngle by remember { mutableFloatStateOf(0f) }
     var wandDirection by remember { mutableStateOf("up") }
     var lastWandDirection by remember { mutableStateOf(wandDirection) }
     var lastTimestamp by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var moveColor by remember { mutableStateOf(Color.White) }
 
-    var lastValueX by remember { mutableFloatStateOf(0F) }
-    var positionX by remember { mutableFloatStateOf(0F) }
-
     var wand by remember { mutableStateOf<String>("") }
     getProfile(getUsername(context!!)){ profileDb ->
         wand = profileDb.wandFront!!
     }
-
 
     var spell by remember { mutableStateOf(Spell()) }
     var previousMove: String? by remember { mutableStateOf(null) }
@@ -101,7 +93,6 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
         // Initialize SensorManager and Sensor
         LaunchedEffect(Unit) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
             val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
             var pivotAngle: Float? = null
 
@@ -136,39 +127,10 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
             }
 
-            // SensorEventListener to update the image X position
-            val accelerometerListener = object: SensorEventListener {
-                val screenSize = configuration.screenWidthDp
-                val imageSize = 32
-                override fun onSensorChanged(event: SensorEvent?) {
-                    if (event != null && event.sensor.type == Sensor.TYPE_ACCELEROMETER){
-                        val sensorX = event.values[0]
-                        // sensorX > 0 -> right; sensorX < 0 -> left
-
-                        if (lastValueX != sensorX){
-                            positionX += sensorX * 10
-                            lastValueX = sensorX
-
-                            // limits the position of the image between 0px and (screen size - image size)px
-                            positionX = positionX.coerceIn(0F, (screenSize - imageSize).toFloat())
-                        }
-                    }
-                }
-
-                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-            }
-
-            // Register listeners
             // Rotation Vector
             sensorManager.registerListener(
                 rotationListener,
                 rotationSensor,
-                SensorManager.SENSOR_DELAY_UI
-            )
-            // Accelerometer
-            sensorManager.registerListener(
-                accelerometerListener,
-                accelerometer,
                 SensorManager.SENSOR_DELAY_UI
             )
         }
@@ -341,7 +303,6 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                         rotationZ = imageRotationAngle,
                         transformOrigin = TransformOrigin(0.5f, 0.9f)
                     ) // Align image at the bottom center
-                    .offset{ IntOffset(positionX.roundToInt(), 0) }
             )
 
         }
