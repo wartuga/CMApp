@@ -426,6 +426,10 @@ object DataBaseHelper {
         return completableFuture
     }
 
+    fun getLabel(username: String): String {
+        return listOf("Practice", "Learn").random()
+    }
+
     fun addLearnedPotion(username: String, potionkey: String): CompletableFuture<Boolean> {
 
         val completableFuture = CompletableFuture<Boolean>()

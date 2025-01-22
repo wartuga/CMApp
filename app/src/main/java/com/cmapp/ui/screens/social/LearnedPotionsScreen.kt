@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getLabel
 import com.cmapp.model.data.DataBaseHelper.getLearnedPotions
 import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
@@ -121,7 +122,7 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
                     name = toUpperCase(potion.name!!),
                     description = potion.description!!,
                     image = potion.image!!,
-                    buttonLabel = "Practice",
+                    buttonLabel = getLabel(getUsername(context!!)),
                     onButtonClick = {
                         navController!!.navigate(
                             Screens.MapPotions.route.replace(

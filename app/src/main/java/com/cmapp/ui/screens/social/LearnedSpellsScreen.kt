@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getLabel
 import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.getLearnedSpells
@@ -124,7 +125,7 @@ fun LearnedSpellsScreenContent(
                     name = toUpperCase(spell.name!!),
                     image = spell.image!!,
                     description = spell.description!!,
-                    buttonLabel = "Practice",
+                    buttonLabel = getLabel(getUsername(context!!)),
                     onButtonClick = {
                         navController!!.navigate(
                             Screens.MovementSpells.route.replace(
