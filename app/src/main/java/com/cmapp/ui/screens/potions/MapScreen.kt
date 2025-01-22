@@ -252,10 +252,12 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
         Row {
             Button(
                 onClick = {
-                    potionColor?.let { color ->
+                    // Actual strings need to be encoded
+                    potionKey.let { color ->
                         val encodedColor = URLEncoder.encode(color, StandardCharsets.UTF_8.toString())
                         navController!!.navigate(Screens.ColorChecker.route + "?potionColor=$encodedColor")
                     }
+                   // navController!!.navigate(Screens.ColorChecker.route.replace(oldValue = "{potionColor}", newValue = potionKey))
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp),

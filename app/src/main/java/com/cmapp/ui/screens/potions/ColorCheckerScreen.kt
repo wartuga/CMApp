@@ -2,11 +2,9 @@ package com.cmapp.ui.screens.potions
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -15,15 +13,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.cmapp.model.data.DataBaseHelper.addLearnedPotion
+import com.cmapp.model.data.DataBaseHelper.getPotion
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.domain.database.Potion
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -36,37 +35,27 @@ fun ColorCheckerScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = {  CameraCaptureContent(navController, potionColor!!) },
+        composable = {  CameraCaptureContent(navController, potionColor!!, context) },
         modifier = modifier
     )
-
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.Gray)
-//            .padding(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center,
-//
-//    ) {
-//        val decodedColor = try {
-//            potionColor?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }
-//        } catch (e: Exception) {
-//            null
-//        }
-
-        //println(potionColor!!)
-       //
     }
 
 
 @Composable
-fun CameraCaptureContent(navController: NavHostController?, potionColorName:String) {
+fun CameraCaptureContent(
+    navController: NavHostController?,
+    potionColorName: String,
+    context: Context?
+) {
     var validatedColor = false
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var dominantColor by remember { mutableStateOf<Color?>(null) }
     //val potionColor = Color.Green
-    val potionColor = getColorFromName(potionColorName)
+    var potion by remember { mutableStateOf<Potion>(Potion()) }
+    getPotion(potionColorName){ potionDb -> potion = potionDb }
+    val potionColorVar = potion.color
+
+    val potionColor = potionColorVar?.let { getColorFromName(it) }
     val imageCaptureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
@@ -85,7 +74,7 @@ fun CameraCaptureContent(navController: NavHostController?, potionColorName:Stri
     ) {
         Button(
             onClick = {
-                imageCaptureLauncher.launch(null)
+                navController?.popBackStack()//imageCaptureLauncher.launch(null)
             },
             modifier = Modifier
                 .padding(bottom = 40.dp)
@@ -94,7 +83,7 @@ fun CameraCaptureContent(navController: NavHostController?, potionColorName:Stri
         ) {
             Text("Back")
         }
-
+//      Display the image?
 //        if (imageBitmap != null) {
 //            Image(
 //                bitmap = imageBitmap!!.asImageBitmap(),
@@ -132,14 +121,18 @@ fun CameraCaptureContent(navController: NavHostController?, potionColorName:Stri
                     validatedColor = true
 
                 }
-
-                val toast = Toast.makeText(LocalContext.current, similar.toString(), Toast.LENGTH_SHORT) // in Activity
-                toast.show()
+                //val toast = Toast.makeText(LocalContext.current, similar.toString(), Toast.LENGTH_SHORT) // in Activity
+                //toast.show()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
         if(validatedColor){
             Text(text = "Good job! Go on and learn new potions.")
+            if(context!= null){
+                val username: String = getUsername(context)
+                addLearnedPotion(username, potionColorName)
+            }
+
             Button(
                 onClick = {
                     navController!!.navigate(Screens.LearnPotions.route)
