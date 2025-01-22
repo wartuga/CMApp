@@ -105,7 +105,7 @@ fun CameraCaptureContent(
             //Display
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(150.dp)
                         .padding(16.dp)
                         .background(dominantColor!!)
                 )
@@ -114,7 +114,7 @@ fun CameraCaptureContent(
                 Text(text = "How your potion should look like:", fontSize = 30.sp)
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(150.dp)
                         .padding(16.dp)
                         .background(potionColor!!)
                 )
