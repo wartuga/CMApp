@@ -3,9 +3,11 @@ package com.cmapp.model.data
 import android.net.Uri
 import android.util.Log
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.database
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -17,6 +19,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -439,6 +442,7 @@ object DataBaseHelper {
         return completableFuture
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getLearnedPotions(username: String, onResult: (List<Potion>) -> Unit) {
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -486,4 +490,42 @@ object DataBaseHelper {
                 onComplete(false, "")
             }
     }
+}
+
+
+fun getLocationsByIngredient(ingredient: String, onResult: (List<LatLng>) -> Unit) {
+
+    database.getReference("ingredients").addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+
+            if (snapshot.exists()) {
+                val locations = snapshot.children.mapNotNull {
+                    val lat = it.child("lat").getValue(Double::class.java)
+                    val lng = it.child("lng").getValue(Double::class.java)
+                    if (lat != null && lng != null) LatLng(lat, lng) else null
+                }
+                onResult(locations)
+            } else {
+                onResult(emptyList()) // No locations found
+            }
+        }
+        override fun onCancelled(error: DatabaseError) {}
+    })
+}
+
+fun addLocationByIngredient( ingredient: String,
+                             location: LatLng): CompletableFuture<Boolean> {
+
+    val completableFuture = CompletableFuture<Boolean>()
+
+    val newLocation = mapOf("lat" to location.latitude, "lng" to location.longitude)
+
+
+    database.getReference("ingredients").child(ingredient).child("positions").push().setValue(newLocation).addOnCompleteListener { task ->
+
+        if (task.isSuccessful) { completableFuture.complete(true) }
+        else { completableFuture.complete(false) }
+    }
+
+    return completableFuture
 }
