@@ -61,7 +61,7 @@ fun UserCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = rememberAsyncImagePainter(Uri.parse(picture)),
-                contentDescription = "profile picture",
+                contentDescription = "Profile picture",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(70.dp)

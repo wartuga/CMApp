@@ -8,7 +8,7 @@ import java.io.Serializable
 @IgnoreExtraProperties
 open class Spell (
     open var key: String? = null,
-    open val color: String? = null,
+    open val image: String? = null,
     open val description: String? = null,
     open val movements: List<String> = emptyList(),
     open val name: String? = null,

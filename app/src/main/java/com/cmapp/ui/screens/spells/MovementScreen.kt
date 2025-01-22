@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -41,10 +42,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.addLearnedSpell
 import com.cmapp.model.data.getSpellAsync
+import com.cmapp.model.data.getWandsFront
+import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlinx.coroutines.delay
@@ -80,7 +85,11 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
     var lastValueX by remember { mutableFloatStateOf(0F) }
     var positionX by remember { mutableFloatStateOf(0F) }
 
-    // receber varinha do user ou ir buscar a varinha do user
+    var wand by remember { mutableStateOf<String>("") }
+    getProfile(getUsername(context!!)){ profileDb ->
+        wand = profileDb.wandFront!!
+    }
+
 
     var spell by remember { mutableStateOf(Spell()) }
     var previousMove: String? by remember { mutableStateOf(null) }
@@ -309,7 +318,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
             modifier = Modifier.fillMaxSize() // Make the Box fill the screen
         ) {
             Image(
-                painter = painterResource(id = R.drawable.wand), // Replace with your image resource
+                painter = rememberAsyncImagePainter(Uri.parse(wand)), // Replace with your image resource
                 contentDescription = "Image at Bottom Center",
                 modifier = Modifier.align(Alignment.BottomCenter)
                     .size(400.dp)

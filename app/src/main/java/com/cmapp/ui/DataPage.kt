@@ -31,7 +31,6 @@ import com.cmapp.ui.viewmodels.UnsplashViewModel
 fun DataPage(modifier: Modifier = Modifier, context: Context?,  navController: NavHostController?) {
 
     val potterViewModel: PotterViewModel = viewModel()
-    val unsplashViewModel: UnsplashViewModel = viewModel()
 
     val potions by potterViewModel.potions.collectAsState()
     val spells by potterViewModel.spells.collectAsState()

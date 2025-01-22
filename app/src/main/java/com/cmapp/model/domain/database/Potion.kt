@@ -7,6 +7,7 @@ import java.io.Serializable
 @IgnoreExtraProperties
 open class Potion (
     open var key: String? = null,
+    open val image: String? = null,
     open val color: String? = null,
     open val description: String? = null,
     open val ingredients: String? = null,

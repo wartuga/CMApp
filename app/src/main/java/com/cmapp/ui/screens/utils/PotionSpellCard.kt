@@ -1,5 +1,6 @@
 package com.cmapp.ui.screens.utils
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,10 +25,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.cmapp.R
+import com.cmapp.model.data.getRandomPotionColorImage
 
 @Composable
-fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: String, onButtonClick: () -> Unit) {
+fun PotionSpellCard(name: String, description:String, image: String, buttonLabel: String, onButtonClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +46,7 @@ fun PotionSpellCard(name: String, description:String, image:Int, buttonLabel: St
         )
 
         Image(
-            painter = painterResource(id = image), // Replace with your image resource
+            painter = rememberAsyncImagePainter(Uri.parse(image)), // Replace with your image resource
             contentDescription = "Background Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier.height(260.dp)
@@ -105,7 +108,7 @@ fun PotionSpellCardPreview(){
     PotionSpellCard(
         name = "REPARIFORS",
         description = "Heals magical ailments like poisoning or paralysis",
-        image = R.drawable.potion,
+        image = getRandomPotionColorImage().second,
         onButtonClick = {},
         buttonLabel = "Practice"
     )

@@ -209,7 +209,6 @@ val colorNameMap = mapOf(
     "Gray" to Color.Gray,
     "Cyan" to Color.Cyan,
     "Magenta" to Color.Magenta
-    // Add more colors as needed
 )
 
 // Function to get a Color object from a string

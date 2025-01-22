@@ -8,6 +8,6 @@ import java.io.Serializable
 open class Profile (
     open var username: String? = null,
     open val photo: String? = null,
-    open val wand: String? = null,
+    open val wandFront: String? = null,
     open val wandSide: String? = null,
 ): Serializable

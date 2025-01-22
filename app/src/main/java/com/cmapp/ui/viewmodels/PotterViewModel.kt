@@ -9,8 +9,8 @@ import coil.network.HttpException
 import com.cmapp.model.data.DataBaseHelper.addPotion
 import com.cmapp.model.data.addSpell
 import com.cmapp.model.data.getRandomMovements
-import com.cmapp.model.data.getRandomPotionColor
-import com.cmapp.model.data.getRandomSpellColor
+import com.cmapp.model.data.getRandomPotionColorImage
+import com.cmapp.model.data.getRandomSpellImage
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.model.domain.potterDB.PotterData
@@ -44,7 +44,7 @@ class PotterViewModel: ViewModel() {
     val spells: MutableStateFlow<PotterData<List<PotterSpell>>?> = _spells
 
     init {
-        //fetchPotions()
+        fetchPotions()
         fetchSpells()
     }
 
@@ -61,13 +61,15 @@ class PotterViewModel: ViewModel() {
         potions!!.data.forEach { potion ->
 
             val attributes = potion.attributes
-            val color = getRandomPotionColor()
+            val potionPair = getRandomPotionColorImage()
+            val color = potionPair.first
+            val image = potionPair.second
             val name = attributes.name
             val description = attributes.effect
             val ingredients = attributes.ingredients
 
             if(description != null && ingredients != null)
-                addPotion(Potion(color = color, name = name, description = description, ingredients = ingredients)).await()
+                addPotion(Potion(image = image, color = color, name = name, description = description, ingredients = ingredients)).await()
         }
     }
 
@@ -83,13 +85,13 @@ class PotterViewModel: ViewModel() {
 
         spells!!.data.forEach { spell ->
 
-            val color = getRandomSpellColor()
+            val image = getRandomSpellImage()
             val name = spell.attributes.name
             val description = spell.attributes.effect
             val movements = getRandomMovements()
             val time = (movements.size * 2.5).roundToInt()
 
-            addSpell(Spell(name = name, description = description, color = color, movements = movements, time = time)).await()
+            addSpell(Spell(name = name, description = description, image = image, movements = movements, time = time)).await()
         }
     }
 

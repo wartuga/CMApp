@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,8 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -36,10 +33,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper
+import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.domain.database.Profile
 import com.cmapp.ui.screens.utils.ProfileButtons
 import com.cmapp.ui.screens.utils.ScreenSkeleton
-import com.cmapp.ui.screens.utils.SwapImage
+import com.cmapp.ui.screens.utils.SwapWand
 import com.cmapp.ui.screens.utils.UserCard
 
 @Composable
@@ -60,7 +59,13 @@ fun WandSelectionScreen(
 @Composable
 private fun WandSelectionScreenContent(modifier: Modifier, context: Context, navController: NavHostController?) {
 
-    var profileImage by remember { mutableStateOf<String?>("https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/face.jpg?alt=media&token=58ef618c-4dfe-4e1d-a58c-9bb65b5810b5") }
+    var profileImage by remember { mutableStateOf<String?>("") }
+
+    var profile by remember { mutableStateOf<Profile>(Profile()) }
+    getProfile(getUsername(context)){ profileDb ->
+        profile = profileDb
+        profileImage = profileDb.photo
+    }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -74,14 +79,13 @@ private fun WandSelectionScreenContent(modifier: Modifier, context: Context, nav
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = modifier.height(24.dp))
-        profileImage?.let {
+        profile.username?.let {
             UserCard(
                 composable = {ProfileButtons(context, modifier, navController!!, galleryLauncher) },
                 modifier = modifier,
-                //ALTERAR
-                picture = it,
-                wand = "",
-                username = "Harry Potter"
+                picture = profileImage!!,
+                wand = profile.wandSide!!,
+                username = profile.username!!
             )
         }
         Row(modifier = modifier.padding(top=46.dp)) {
@@ -96,43 +100,8 @@ private fun WandSelectionScreenContent(modifier: Modifier, context: Context, nav
             )
         }
         Spacer(modifier = modifier.height(16.dp))
-        Row(
-            modifier = modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SwapImage({
-                Image(
-                    painter = painterResource(id = R.drawable.wand), // Replace with your image resource
-                    contentDescription = "Image at Bottom Center",
-                    modifier = Modifier
-                        .height(350.dp),
-                    contentScale = ContentScale.FillHeight // Ensures the aspect ratio is maintained
-                )
-            }, modifier = modifier)
-        }
-        Row(
-            modifier = modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Button(
-                onClick = {},
-                modifier = Modifier
-                    .padding(top=16.dp),
-                border = BorderStroke(2.dp, Color.White),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(83, 12, 114), // Background color
-                    contentColor = Color.White   // Text/icon color
-                ),
-            ) {
-                Text(text = "Select",
-                    style = TextStyle(
-                        fontSize = 34.sp,
-                        fontFamily = FontFamily(Font(resId = R.font.harry)),
-                        color = Color.White
-                ),)
-            }
+        profile.wandFront?.let {
+            SwapWand(username = getUsername(context), initialWand = profile.wandFront!!, modifier = modifier)
         }
     }
 }

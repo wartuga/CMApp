@@ -120,7 +120,7 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
                 PotionSpellCard(
                     name = toUpperCase(potion.name!!),
                     description = potion.description!!,
-                    image = R.drawable.potion,
+                    image = potion.image!!,
                     buttonLabel = "Practice",
                     onButtonClick = {
                         navController!!.navigate(

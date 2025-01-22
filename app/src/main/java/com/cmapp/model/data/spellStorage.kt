@@ -36,7 +36,7 @@ fun getSpells(onResult: (List<Spell>) -> Unit) {
             for(snapshot in dataSnapshot.children){
                 val spell = Spell(
                     key = snapshot.key.toString(),
-                    color = snapshot.child("color").getValue(String::class.java),
+                    image = snapshot.child("image").getValue(String::class.java),
                     description = snapshot.child("description").getValue(String::class.java),
                     movements = snapshot.child("movements").children.map { it.getValue(String::class.java) ?: "" },
                     name = snapshot.child("name").getValue(String::class.java),
@@ -61,7 +61,7 @@ fun getSpell(spellKey:String, onResult: (Spell) -> Unit){
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             val spell = Spell(
                 key = dataSnapshot.key.toString(),
-                color = dataSnapshot.child("color").getValue(String::class.java),
+                image = dataSnapshot.child("image").getValue(String::class.java),
                 description = dataSnapshot.child("description").getValue(String::class.java),
                 movements = dataSnapshot.child("movements").children.map { it.getValue(String::class.java) ?: "" },
                 name = dataSnapshot.child("name").getValue(String::class.java),

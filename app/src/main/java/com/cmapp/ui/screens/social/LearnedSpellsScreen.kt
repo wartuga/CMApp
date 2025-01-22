@@ -32,8 +32,6 @@ import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.getLearnedSpells
-import com.cmapp.model.data.getRandomSpellColor
-import com.cmapp.model.data.getSpellImage
 import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
@@ -124,7 +122,7 @@ fun LearnedSpellsScreenContent(
             spell.name?.let {
                 PotionSpellCard(
                     name = toUpperCase(spell.name!!),
-                    image = getSpellImage(spell.color!!),
+                    image = spell.image!!,
                     description = spell.description!!,
                     buttonLabel = "Practice",
                     onButtonClick = {

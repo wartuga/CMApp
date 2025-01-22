@@ -147,7 +147,7 @@ object DataBaseHelper {
 
     fun addProfile(username: String): CompletableFuture<Boolean> {
 
-        val profile = Profile(username, "https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/face.jpg?alt=media&token=58ef618c-4dfe-4e1d-a58c-9bb65b5810b5", "https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/wand.png?alt=media&token=dc43b1dc-d75d-4c15-9928-6be8d7ed276f", "https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/wand_side.png?alt=media&token=3e5127b3-b47c-47bf-a30a-5c6e13c6ee8f")
+        val profile = Profile(username, defaultPhoto, wandsFrontUrls[0], wandsSideUrls[0])
         val completableFuture = CompletableFuture<Boolean>()
 
         database.getReference("profiles").child(username).setValue(profile).addOnCompleteListener { task ->
@@ -206,7 +206,7 @@ object DataBaseHelper {
 
     fun updateWand(username: String, wand: String, wandSide: String){
 
-        val update = hashMapOf<String, Any>("wand" to wand, "wandSide" to wandSide)
+        val update = hashMapOf<String, Any>("wandFront" to wand, "wandSide" to wandSide)
         database.getReference("profiles").child(username).updateChildren(update)
     }
 

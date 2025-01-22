@@ -92,16 +92,22 @@ fun LearningScreenContent(
         Spacer(modifier = modifier.height(16.dp))
 
         spells.forEach { spell ->
-
-            PotionSpellCard(
-                name = toUpperCase(spell.name!!),
-                image = R.drawable.spell,
-                description = spell.description!!,
-                buttonLabel = "Learn",
-                onButtonClick = {
-                    navController!!.navigate(Screens.MovementSpells.route.replace(oldValue = "{spellKey}", newValue = spell.key!!))
-                }
-            )
+            spell.name?.let {
+                PotionSpellCard(
+                    name = toUpperCase(spell.name!!),
+                    image = spell.image!!,
+                    description = spell.description!!,
+                    buttonLabel = "Learn",
+                    onButtonClick = {
+                        navController!!.navigate(
+                            Screens.MovementSpells.route.replace(
+                                oldValue = "{spellKey}",
+                                newValue = spell.key!!
+                            )
+                        )
+                    }
+                )
+            }
         }
     }
 }
