@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +51,7 @@ import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.addLearnedSpell
 import com.cmapp.model.data.getSpellAsync
 import com.cmapp.model.data.getWandsFront
+import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
@@ -72,24 +75,18 @@ fun MovementScreen(
 @Composable
 private fun MovementScreenContent(modifier: Modifier, navController: NavHostController?, context: Context?, spellKey: String) {
 
-
-
-    val configuration = LocalConfiguration.current
-
     var imageRotationAngle by remember { mutableFloatStateOf(0f) }
     var wandDirection by remember { mutableStateOf("up") }
     var lastWandDirection by remember { mutableStateOf(wandDirection) }
     var lastTimestamp by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var moveColor by remember { mutableStateOf(Color.White) }
 
-    var lastValueX by remember { mutableFloatStateOf(0F) }
     var positionX by remember { mutableFloatStateOf(0F) }
 
     var wand by remember { mutableStateOf<String>("") }
     getProfile(getUsername(context!!)){ profileDb ->
         wand = profileDb.wandFront!!
     }
-
 
     var spell by remember { mutableStateOf(Spell()) }
     var previousMove: String? by remember { mutableStateOf(null) }
@@ -101,7 +98,6 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
         // Initialize SensorManager and Sensor
         LaunchedEffect(Unit) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
             val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
             var pivotAngle: Float? = null
 
@@ -137,38 +133,12 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
             }
 
             // SensorEventListener to update the image X position
-            val accelerometerListener = object: SensorEventListener {
-                val screenSize = configuration.screenWidthDp
-                val imageSize = 32
-                override fun onSensorChanged(event: SensorEvent?) {
-                    if (event != null && event.sensor.type == Sensor.TYPE_ACCELEROMETER){
-                        val sensorX = event.values[0]
-                        // sensorX > 0 -> right; sensorX < 0 -> left
-
-                        if (lastValueX != sensorX){
-                            positionX += sensorX * 10
-                            lastValueX = sensorX
-
-                            // limits the position of the image between 0px and (screen size - image size)px
-                            positionX = positionX.coerceIn(0F, (screenSize - imageSize).toFloat())
-                        }
-                    }
-                }
-
-                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-            }
 
             // Register listeners
             // Rotation Vector
             sensorManager.registerListener(
                 rotationListener,
                 rotationSensor,
-                SensorManager.SENSOR_DELAY_UI
-            )
-            // Accelerometer
-            sensorManager.registerListener(
-                accelerometerListener,
-                accelerometer,
                 SensorManager.SENSOR_DELAY_UI
             )
         }
@@ -200,7 +170,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 }
 
                 if (currentTime - lastTimestamp >= 1500L && wandDirection == move) {
-                    moveColor = Color.Green
+                    moveColor = Color(218, 198, 108)
                     delay(250L) // Wait
 
                     if (i < spell.movements.size) {
@@ -226,19 +196,20 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
     }
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxSize().padding(top=24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(modifier = modifier.padding(30.dp)) {
+        Row() {
             spell.name?.let {
                 Text(
-                    text = it,
+                    text = toUpperCase(it),
                     color = Color.White,
                     fontSize = 36.sp
                 )
             }
         }
-        Row(modifier = modifier.padding(16.dp)) {
+        Spacer(modifier = modifier.height(32.dp))
+        Row() {
             Image(
                 painter = painterResource(id = R.drawable.timer),
                 contentDescription = "clock",
@@ -253,11 +224,13 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 fontSize = 20.sp
             )
         }
+        Spacer(modifier = modifier.height(12.dp))
         Row(
             modifier = modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // previous movement
             val previousRes = when (previousMove) {
@@ -268,16 +241,23 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 "left" -> R.drawable.arrow_left
                 else -> null // return null for invalid cases
             }
+
+            var minimalSize = 30.dp
+            if(previousMove == "up-left" || previousMove == "up-right"){ minimalSize -= 8.dp }
+
             if(previousRes != null){
                 Image(
                     painter = painterResource(id = previousRes),
                     contentDescription = "Movimento",
-                    modifier = Modifier.size(50.dp),
-                    colorFilter = ColorFilter.tint(Color.White)
+                    modifier = Modifier.size(minimalSize),
+                    colorFilter = ColorFilter.tint(Color(218, 198, 108))
                 )
             } else {
                 Spacer(Modifier.size(50.dp))
             }
+            var size = 60.dp
+            if(move == "up-left" || move == "up-right"){ size -= 8.dp }
+
             // current movement
             Image(
                 painter = painterResource(id =
@@ -291,7 +271,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                     }
                 ),
                 contentDescription = "Movimento",
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(size),
                 colorFilter = ColorFilter.tint(moveColor)
             )
             // next movement
@@ -303,11 +283,15 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 "left" -> R.drawable.arrow_left
                 else -> null // return null for invalid cases
             }
+
+            minimalSize = 30.dp
+            if(nextMove == "up-left" || nextMove == "up-right"){ minimalSize -= 8.dp }
+
             if(nextRes != null){
                 Image(
                     painter = painterResource(id = nextRes),
                     contentDescription = "Movimento",
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(minimalSize),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
             } else {
