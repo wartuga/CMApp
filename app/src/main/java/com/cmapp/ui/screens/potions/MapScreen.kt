@@ -155,7 +155,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 generateRandomPlaces(5, userLocation!!)
             }
             placesByIngredient.value = generatedPlaces
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation!!, 10.0F)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation!!, 20.0F)
         }
     }
     // Get places from DB

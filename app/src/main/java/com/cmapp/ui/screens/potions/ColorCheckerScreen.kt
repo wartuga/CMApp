@@ -8,15 +8,21 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.addLearnedPotion
 import com.cmapp.model.data.DataBaseHelper.getPotion
 import com.cmapp.model.data.StorageHelper.getUsername
@@ -95,24 +101,24 @@ fun CameraCaptureContent(
 //        }
 
         if (dominantColor != null) {
-            Text(text = "Your potion's color:")
+            Text(text = "Your potion's color:", fontSize = 30.sp)
             //Display
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(200.dp)
                         .padding(16.dp)
                         .background(dominantColor!!)
                 )
-                Text(text = "Dominant Color: $dominantColor")
+                //Text(text = "Dominant Color: $dominantColor")
 
-                Text(text = "How your potion should look like:")
+                Text(text = "How your potion should look like:", fontSize = 30.sp)
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(200.dp)
                         .padding(16.dp)
                         .background(potionColor!!)
                 )
-                Text(text = "Dominant Color: $potionColor")
+                //Text(text = "Dominant Color: $potionColor")
 
                 //Check if color is correct
                 val similar = areColorsSimilar(dominantColor!!, potionColor!!)
@@ -127,7 +133,7 @@ fun CameraCaptureContent(
 
         Spacer(modifier = Modifier.height(16.dp))
         if(validatedColor){
-            Text(text = "Good job! Go on and learn new potions.")
+            Text(text = "Good job! Go on and learn new potions.", fontSize = 30.sp)
             if(context!= null){
                 val username: String = getUsername(context)
                 addLearnedPotion(username, potionColorName)
@@ -136,19 +142,45 @@ fun CameraCaptureContent(
             Button(
                 onClick = {
                     navController!!.navigate(Screens.LearnPotions.route)
-                }
+                },
+                modifier = Modifier
+                    .padding(bottom = 16.dp),
+                border = BorderStroke(2.dp, Color.White),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(83, 12, 114), // Background color
+                    contentColor = Color.White   // Text/icon color
+                ),
             ) {
-                Text("Learn new potion")
+                Text(
+                    text = "Learn new potion", color = Color.White, style = TextStyle(
+                        fontSize = 24.sp,
+                        fontFamily = FontFamily(Font(resId = R.font.harry)),
+                        color = Color.White
+                    )
+                )
             }
         }
         else{
-            Text(text = "You should try again.")
+            Text(text = "You should try again.", fontSize = 30.sp)
             Button(
                 onClick = {
                     imageCaptureLauncher.launch(null)
-                }
+                },
+                modifier = Modifier
+                    .padding(bottom = 16.dp),
+                border = BorderStroke(2.dp, Color.White),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(83, 12, 114), // Background color
+                    contentColor = Color.White   // Text/icon color
+                ),
             ) {
-                Text("Re-validate")
+                Text(
+                    text = "Re-Validate", color = Color.White, style = TextStyle(
+                        fontSize = 24.sp,
+                        fontFamily = FontFamily(Font(resId = R.font.harry)),
+                        color = Color.White
+                    )
+                )
             }
         }
 
