@@ -1,25 +1,30 @@
 package com.cmapp.ui.screens.profile
 
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -30,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.ui.screens.utils.ProfileButtons
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.SwapImage
 import com.cmapp.ui.screens.utils.UserCard
@@ -37,71 +45,45 @@ import com.cmapp.ui.screens.utils.UserCard
 @Composable
 fun WandSelectionScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
     ScreenSkeleton(
         navController = navController,
         composable = {
-            WandSelectionScreenContent(modifier)
+            WandSelectionScreenContent(modifier, context!!, navController)
         },
         modifier = modifier
     )
 }
 
 @Composable
-private fun WandSelectionScreenContent(modifier: Modifier) {
+private fun WandSelectionScreenContent(modifier: Modifier, context: Context, navController: NavHostController?) {
+
+    var profileImage by remember { mutableStateOf<String?>("https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/face.jpg?alt=media&token=58ef618c-4dfe-4e1d-a58c-9bb65b5810b5") }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        profileImage = uri.toString()
+        DataBaseHelper.updateProfilePhoto(getUsername(context), uri.toString())
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = modifier.height(24.dp))
-        UserCard(
-            composable = {
-                Button(
-                    onClick = {},
-                    modifier = Modifier
-                        .size(50.dp)
-                        .padding(6.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(83, 12, 114), // Background color
-                        contentColor = Color.White   // Text/icon color
-                    ),
-                    border = BorderStroke(2.dp, Color.White),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.pencil),
-                        contentDescription = "Edit Profile",
-                        modifier = modifier.size(20.dp),
-                        colorFilter = ColorFilter.tint(Color.White)
-                    )
-                }
-                Button(
-                    onClick = {},
-                    modifier = Modifier
-                        .size(50.dp)
-                        .padding(6.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(83, 12, 114), // Background color
-                        contentColor = Color.White   // Text/icon color
-                    ),
-                    border = BorderStroke(2.dp, Color.White),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.gear_wheel),
-                        contentDescription = "Settings",
-                        modifier = modifier.size(20.dp),
-                        colorFilter = ColorFilter.tint(Color.White)
-                    )
-                }
-            },
-            modifier = modifier,
-            //ALTERAR
-            picture = R.drawable.face,
-            wand = R.drawable.wand_side,
-            username = "Harry Potter"
-        )
+        profileImage?.let {
+            UserCard(
+                composable = {ProfileButtons(context, modifier, navController!!, galleryLauncher) },
+                modifier = modifier,
+                //ALTERAR
+                picture = it,
+                wand = "",
+                username = "Harry Potter"
+            )
+        }
         Row(modifier = modifier.padding(top=46.dp)) {
             Text(
                 text = "PICK YOUR WAND",
@@ -158,5 +140,5 @@ private fun WandSelectionScreenContent(modifier: Modifier) {
 @Preview
 @Composable
 fun WandSelectionScreenPreview() {
-    WandSelectionScreen(modifier = Modifier, null)
+    WandSelectionScreen(modifier = Modifier, null, null)
 }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.ui.DataPage
 import com.cmapp.ui.screens.social.FriendsListScreen
 import com.cmapp.ui.screens.potions.MapScreen
@@ -23,9 +24,14 @@ fun NavGraph(
     context: Context
     //viewModel: ViewModel
 ) {
+    var startDestination = Screens.Login.route
+    if(getUsername(context).isNotEmpty()){
+        startDestination = Screens.LearnSpells.route
+    }
+
     NavHost (
         navController = navController,
-        startDestination = Screens.Login.route
+        startDestination = startDestination
 
         //Populate database
         //startDestination = Screens.Data.route
@@ -73,7 +79,7 @@ fun NavGraph(
             LearnedPotionsScreen(navController = navController, context = context, friendUsername = friendUsername)
         }
         composable(route = Screens.WandProfile.route) {
-            WandSelectionScreen(navController = navController)
+            WandSelectionScreen(navController = navController, context = context)
         }
     }
 }

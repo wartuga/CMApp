@@ -67,6 +67,8 @@ fun MovementScreen(
 @Composable
 private fun MovementScreenContent(modifier: Modifier, navController: NavHostController?, context: Context?, spellKey: String) {
 
+
+
     val configuration = LocalConfiguration.current
 
     var imageRotationAngle by remember { mutableFloatStateOf(0f) }

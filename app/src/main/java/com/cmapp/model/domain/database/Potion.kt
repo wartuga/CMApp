@@ -1,6 +1,5 @@
 package com.cmapp.model.domain.database
 
-import android.os.Parcelable
 import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
 

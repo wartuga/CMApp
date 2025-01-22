@@ -76,7 +76,7 @@ fun LoginScreenContent(
                                 password,
                                 onSuccess = {
                                     setUsername(context!!, username)
-                                    navController?.navigate(Screens.LearnSpells.route)
+                                    navController?.navigate(Screens.WandProfile.route)
                                 },
                                 onError = { Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show() }
                             )

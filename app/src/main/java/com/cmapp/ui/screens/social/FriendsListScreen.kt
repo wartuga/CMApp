@@ -1,6 +1,7 @@
 package com.cmapp.ui.screens.social
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -25,7 +26,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,15 +38,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getFriendRequests
+import com.cmapp.model.data.DataBaseHelper.getFriends
+import com.cmapp.model.data.DataBaseHelper.getProfiles
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.data.getSuggestions
+import com.cmapp.model.domain.database.Profile
 import com.cmapp.navigation.Screens
+import com.cmapp.ui.screens.utils.AcceptRejectButtons
 import com.cmapp.ui.screens.utils.RemoveButton
+import com.cmapp.ui.screens.utils.RequestButton
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import com.cmapp.ui.screens.utils.UserCard
 
@@ -54,31 +65,41 @@ fun FriendsListScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { FriendsListScreenContent(modifier, navController) },
+        composable = { FriendsListScreenContent(modifier, navController, context!!) },
         modifier = modifier
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FriendsListScreenContent(modifier: Modifier, navController: NavHostController?) {
-
-    val friendRequests = listOf("Friend 6", "Friend 7")
-    val friends = listOf("Friend 1", "Friend 2", "Friend 3", "Friend 4", "Friend 5")
+private fun FriendsListScreenContent(modifier: Modifier, navController: NavHostController?, context: Context) {
 
     val scrollState = rememberScrollState()
-    val searchTextState = remember { androidx.compose.runtime.mutableStateOf(TextFieldValue("")) }
+    var searchText by remember {mutableStateOf("") }
+
+    var suggestedProfiles by remember { mutableStateOf<List<Profile>>(mutableListOf()) }
+    getProfiles(){ profilesDb -> suggestedProfiles = getSuggestions(getUsername(context), profilesDb, searchText) }
+
+    var requests by remember { mutableStateOf<List<Profile>>(mutableListOf()) }
+    getFriendRequests(getUsername(context)){ requestsDb -> requests = requestsDb }
+
+    var friends by remember { mutableStateOf<List<Profile>>(mutableListOf()) }
+    getFriends(getUsername(context)){ friendsDb -> friends = friendsDb }
 
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = modifier.height(24.dp))
+
         // Search bar
         Box(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .border(BorderStroke(3.dp, Color.White), shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp))
+                .border(
+                    BorderStroke(3.dp, Color.White),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+                )
                 .fillMaxWidth()
         ) {
             Row(
@@ -89,13 +110,14 @@ private fun FriendsListScreenContent(modifier: Modifier, navController: NavHostC
                     painter = painterResource(id = R.drawable.magnifying_glass), // Replace with your icon
                     contentDescription = "Search icon",
                     tint = Color.White,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp).size(30.dp) // Adds some space between the icon and the text field
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                        .size(30.dp) // Adds some space between the icon and the text field
                 )
 
                 // Text Input (TextField)
                 TextField(
-                    value = searchTextState.value, // Replace with your TextField value
-                    onValueChange = { newText -> searchTextState.value = newText },
+                    value = searchText, // Replace with your TextField value
+                    onValueChange = { newText -> searchText = newText },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     textStyle = TextStyle(
@@ -113,91 +135,82 @@ private fun FriendsListScreenContent(modifier: Modifier, navController: NavHostC
             }
         }
 
-        Spacer(modifier = modifier.height(32.dp))
+        if (searchText.isNotEmpty()) {
 
-        Text(
-            text = "FRIEND REQUESTS",
-            style = TextStyle(
-                fontSize = 36.sp,
-                fontFamily = FontFamily(Font(resId = R.font.harry)),
-                color = Color.White
-            ),
-        )
-        Spacer(modifier = modifier.height(16.dp))
-        friendRequests.forEach { friendRequest ->
-            UserCard(
-                composable = {
-                    Button(
-                        onClick = {},
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(6.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(53, 139, 63), // Background color
-                            contentColor = Color.White   // Text/icon color
-                        ),
-                        border = BorderStroke(2.dp, Color.White),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.check),
-                            contentDescription = "Accept request",
-                            modifier = modifier.size(20.dp),
-                            colorFilter = ColorFilter.tint(Color.White)
-                        )
-                    }
-                    Button(
-                        onClick = {},
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(6.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(176, 48, 50), // Background color
-                            contentColor = Color.White   // Text/icon color
-                        ),
-                        border = BorderStroke(2.dp, Color.White),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.cross),
-                            contentDescription = "Reject request",
-                            modifier = modifier.size(16.dp),
-                            colorFilter = ColorFilter.tint(Color.White)
-                        )
-                    }
-                },
-                modifier = modifier,
-                picture = R.drawable.face,
-                wand = R.drawable.wand_side,
-                username = friendRequest
-            )
             Spacer(modifier = modifier.height(16.dp))
+
+            suggestedProfiles.forEach { profile ->
+                profile.username?.let {
+                    UserCard(
+                        composable = {RequestButton(modifier, getUsername(context), profile.username!!)},
+                        modifier = modifier,
+                        picture = profile.photo!!,
+                        wand = profile.wandSide!!,
+                        username = profile.username!!
+                    )
+                    Spacer(modifier = modifier.height(16.dp))
+                }
+            }
         }
 
-        Spacer(modifier = modifier.height(16.dp))
+        else {
 
-        Text(
-            text = "YOUR FRIENDS",
-            style = TextStyle(
-                fontSize = 36.sp,
-                fontFamily = FontFamily(Font(resId = R.font.harry)),
-                color = Color.White
-            ),
-        )
-        Spacer(modifier = modifier.height(16.dp))
-        friends.forEach { friend ->
-            UserCard(
-                composable = { RemoveButton(modifier) },
-                modifier = Modifier.clickable{
+            Spacer(modifier = modifier.height(32.dp))
 
-                    //friend.username
-                    navController!!.navigate(Screens.SpellsSocial.route.replace(oldValue = "{friendUsername}", newValue = "FriendTest"))
-                },
-                picture = R.drawable.face,
-                wand = R.drawable.wand_side,
-                username = friend
+            Text(
+                text = "FRIEND REQUESTS",
+                style = TextStyle(
+                    fontSize = 36.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.White
+                ),
             )
             Spacer(modifier = modifier.height(16.dp))
+            requests.forEach { profile ->
+                profile.username?.let {
+                    UserCard(
+                        composable = { AcceptRejectButtons(modifier, getUsername(context), profile.username!!) },
+                        modifier = modifier,
+                        picture = profile.photo!!,
+                        wand = profile.wandSide!!,
+                        username = it
+                    )
+                }
+                Spacer(modifier = modifier.height(16.dp))
+            }
+
+            Spacer(modifier = modifier.height(16.dp))
+
+            Text(
+                text = "YOUR FRIENDS",
+                style = TextStyle(
+                    fontSize = 36.sp,
+                    fontFamily = FontFamily(Font(resId = R.font.harry)),
+                    color = Color.White
+                ),
+            )
+            Spacer(modifier = modifier.height(16.dp))
+            friends.forEach { profile ->
+                profile.username?.let {
+                    UserCard(
+                        composable = { RemoveButton(modifier, getUsername(context), profile.username!!, navController!!) },
+                        modifier = Modifier.clickable {
+
+                            //friend.username
+                            navController!!.navigate(
+                                Screens.SpellsSocial.route.replace(
+                                    oldValue = "{friendUsername}",
+                                    newValue = profile.username!!
+                                )
+                            )
+                        },
+                        picture = profile.photo!!,
+                        wand = profile.wandSide!!,
+                        username = it
+                    )
+                }
+                Spacer(modifier = modifier.height(16.dp))
+            }
         }
 
     }

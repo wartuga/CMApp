@@ -1,5 +1,8 @@
 package com.cmapp.model.data
 
+import com.cmapp.R
+import com.cmapp.model.data.StorageHelper.getUsername
+import com.cmapp.model.domain.database.Profile
 import java.lang.Math.random
 import java.util.Locale
 
@@ -34,4 +37,21 @@ fun getRandomSpellColor(): String {
 fun getRandomMovements(): List<String> {
     val movList = listOf("right","up-right","up","up-left","left")
     return List((10..20).random()) { _ -> movList.random() }
+}
+
+fun getSpellImage(color: String): Int{
+    return R.drawable.spell
+}
+
+fun getPotionImage(color: String): Int{
+    return R.drawable.potion
+}
+
+fun getSuggestions(username: String, profiles: List<Profile>, searchText: String): List<Profile> {
+
+    return profiles.filter {
+    it.username?.contains(searchText, ignoreCase = true) == true &&
+            searchText.isNotBlank() &&
+            it.username != username
+    }
 }

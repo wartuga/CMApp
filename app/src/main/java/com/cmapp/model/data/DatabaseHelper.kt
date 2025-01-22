@@ -1,7 +1,10 @@
 package com.cmapp.model.data
 
+import android.net.Uri
 import android.util.Log
+import com.cmapp.R
 import com.cmapp.model.domain.database.Potion
+import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -9,6 +12,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +30,8 @@ object DataBaseHelper {
             .setPersistenceEnabled(false)
     val database =
         FirebaseDatabase.getInstance("https://hogwarts-apprentice-default-rtdb.europe-west1.firebasedatabase.app/")
+
+    val imageStorage = FirebaseStorage.getInstance("gs://hogwarts-apprentice.firebasestorage.app")
 
     fun addNotificationListener(onNotificationReceived: (String, Spell) -> Unit) {
         val myRef = database.getReference("notifications")
@@ -124,6 +131,11 @@ object DataBaseHelper {
         usernameRef.child(username).setValue(userData)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    addProfile(username).thenAccept { sucess ->
+                        if(sucess){
+                            onSuccess()
+                        }
+                    }
                     onSuccess()
                     Log.d("register", "User registered successfully")
                 } else {
@@ -133,17 +145,153 @@ object DataBaseHelper {
             }
     }
 
-    fun addPotion(potion: Potion): CompletableFuture<Boolean> {
+    fun addProfile(username: String): CompletableFuture<Boolean> {
 
+        val profile = Profile(username, "https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/face.jpg?alt=media&token=58ef618c-4dfe-4e1d-a58c-9bb65b5810b5", "https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/wand.png?alt=media&token=dc43b1dc-d75d-4c15-9928-6be8d7ed276f", "https://firebasestorage.googleapis.com/v0/b/hogwarts-apprentice.firebasestorage.app/o/wand_side.png?alt=media&token=3e5127b3-b47c-47bf-a30a-5c6e13c6ee8f")
         val completableFuture = CompletableFuture<Boolean>()
 
-        database.getReference("potions").push().setValue(potion).addOnCompleteListener { task ->
+        database.getReference("profiles").child(username).setValue(profile).addOnCompleteListener { task ->
 
             if (task.isSuccessful) { completableFuture.complete(true) }
             else { completableFuture.complete(false) }
         }
 
         return completableFuture
+    }
+
+    fun getProfile(username: String, onResult: (Profile) -> Unit){
+
+        database.getReference("profiles").child(username).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val profile = dataSnapshot.getValue(Profile::class.java)
+                profile?.username = dataSnapshot.key.toString()
+                onResult(profile!!)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    fun getProfiles(onResult: (List<Profile>) -> Unit) {
+
+        database.getReference("profiles").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                val profileList = mutableListOf<Profile>()
+
+                for(snapshot in dataSnapshot.children){
+                    val profile = snapshot.getValue(Profile::class.java)
+                    profile?.username = snapshot.key.toString()
+                    profile?.let { profileList.add(it) }
+                }
+
+                onResult(profileList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                println("Error retrieving data: ${error.message}")
+            }
+        })
+    }
+
+    fun updateProfilePhoto(username: String, photo: String){
+
+        uploadImage(photo){ sucess, url ->
+            if(sucess){
+                val update = hashMapOf<String, Any>("photo" to url)
+                database.getReference("profiles").child(username).updateChildren(update)
+            }
+        }
+    }
+
+    fun updateWand(username: String, wand: String, wandSide: String){
+
+        val update = hashMapOf<String, Any>("wand" to wand, "wandSide" to wandSide)
+        database.getReference("profiles").child(username).updateChildren(update)
+    }
+
+    fun addFriendRequest(username: String, friendUsername: String): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        database.getReference("usersInfo").child(friendUsername).child("requests").child(username).setValue("").addOnCompleteListener { task ->
+
+            if (task.isSuccessful) {
+                completableFuture.complete(true)
+            } else {
+                completableFuture.complete(false)
+            }
+        }
+
+        return completableFuture
+    }
+
+    fun getFriendRequests(username: String, onResult: (List<Profile>) -> Unit) {
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val requestsRef = database.getReference("usersInfo").child(username).child("requests")
+            val dataSnapshot = requestsRef.get().await()
+
+            val requestsProfiles = mutableListOf<Profile>()
+            val deferredList = mutableListOf<CompletableDeferred<Profile?>>()
+
+            for (snapshot in dataSnapshot.children) {
+                val profileUsername = snapshot.key.toString()
+
+                val potionDeferred = CompletableDeferred<Profile?>()
+                launch {
+                    val profile = getProfileAsync(profileUsername)
+                    potionDeferred.complete(profile)
+                }
+                deferredList.add(potionDeferred)
+            }
+
+            deferredList.forEach{
+                it.await()
+                requestsProfiles.add(it.getCompleted()!!)
+            }
+            onResult(requestsProfiles)
+        }
+    }
+
+    fun getFriends(username: String, onResult: (List<Profile>) -> Unit) {
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val friendsRef = database.getReference("usersInfo").child(username).child("friends")
+            val dataSnapshot = friendsRef.get().await()
+
+            val friendsProfiles = mutableListOf<Profile>()
+            val deferredList = mutableListOf<CompletableDeferred<Profile?>>()
+
+            for (snapshot in dataSnapshot.children) {
+                val profileUsername = snapshot.key.toString()
+
+                val potionDeferred = CompletableDeferred<Profile?>()
+                launch {
+                    val profile = getProfileAsync(profileUsername)
+                    potionDeferred.complete(profile)
+                }
+                deferredList.add(potionDeferred)
+            }
+
+            deferredList.forEach{
+                it.await()
+                friendsProfiles.add(it.getCompleted()!!)
+            }
+            onResult(friendsProfiles)
+        }
+    }
+
+    suspend fun getProfileAsync(username: String): Profile? {
+        return withContext(Dispatchers.IO) {
+            val deferred = CompletableDeferred<Profile?>()
+            getProfile(username) { profile ->
+                deferred.complete(profile)
+            }
+            deferred.await()
+        }
     }
 
     fun getPotions(onResult: (List<Potion>) -> Unit) {
@@ -168,6 +316,19 @@ object DataBaseHelper {
         })
     }
 
+    fun addPotion(potion: Potion): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        database.getReference("potions").push().setValue(potion).addOnCompleteListener { task ->
+
+            if (task.isSuccessful) { completableFuture.complete(true) }
+            else { completableFuture.complete(false) }
+        }
+
+        return completableFuture
+    }
+
     fun getPotion(potionKey:String, onResult: (Potion) -> Unit){
 
         database.getReference("potions").child(potionKey).addListenerForSingleValueEvent(object : ValueEventListener {
@@ -189,6 +350,75 @@ object DataBaseHelper {
             }
             deferred.await()
         }
+    }
+
+    fun  deleteFriendRequest(sender: String, receiver: String): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        database.getReference("usersInfo").child(receiver).child("requests").child(sender).removeValue()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    completableFuture.complete(true)
+                } else {
+                    completableFuture.complete(false)
+                }
+            }
+
+        return completableFuture
+    }
+
+    fun addFriends(username: String, friendUsername: String): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        database.getReference("usersInfo").child(username).child("friends").child(friendUsername)
+            .setValue("")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    database.getReference("usersInfo").child(friendUsername).child("friends").child(username)
+                        .setValue("")
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                if (task.isSuccessful) {
+                                    deleteFriendRequest(friendUsername, username)
+                                    completableFuture.complete(true)
+                                }
+                            } else {
+                                completableFuture.complete(false)
+                            }
+                        }
+                } else {
+                    completableFuture.complete(false)
+                }
+            }
+
+        return completableFuture
+    }
+
+    fun deleteFriends(username: String, friendUsername: String): CompletableFuture<Boolean> {
+
+        val completableFuture = CompletableFuture<Boolean>()
+
+        database.getReference("usersInfo").child(username).child("friends").child(friendUsername).removeValue()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    database.getReference("usersInfo").child(friendUsername).child("friends").child(username).removeValue()
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                if (task.isSuccessful) {
+                                    completableFuture.complete(true)
+                                }
+                            } else {
+                                completableFuture.complete(false)
+                            }
+                        }
+                } else {
+                    completableFuture.complete(false)
+                }
+            }
+
+        return completableFuture
     }
 
     fun addLearnedPotion(username: String, potionkey: String): CompletableFuture<Boolean> {
@@ -231,6 +461,25 @@ object DataBaseHelper {
             }
             onResult(potions)
         }
+    }
+
+    fun uploadImage(image: String, onComplete: (Boolean, String) -> Unit) {
+
+        val fileStorageReference: StorageReference = imageStorage.getReference(image)
+
+        val imageUri = Uri.parse(image)
+        fileStorageReference.putFile(imageUri)
+            .addOnSuccessListener { taskSnapshot ->
+                fileStorageReference.downloadUrl.addOnSuccessListener { uri ->
+                    val imageUrl = uri.toString()
+                    onComplete(true, imageUrl)
+                }.addOnFailureListener { exception ->
+                    onComplete(false, "")
+                }
+            }
+            .addOnFailureListener { exception ->
+                onComplete(false, "")
+            }
     }
 
     private fun isAuthValid(username: String, password: String) =

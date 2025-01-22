@@ -29,8 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.getProfile
+import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.getLearnedSpells
+import com.cmapp.model.data.getRandomSpellColor
+import com.cmapp.model.data.getSpellImage
 import com.cmapp.model.data.toUpperCase
+import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
@@ -59,6 +64,8 @@ fun LearnedSpellsScreenContent(
     context: Context?,
     friendUsername: String?
 ) {
+    var profile by remember { mutableStateOf<Profile>(Profile()) }
+    getProfile(friendUsername!!){ profileDb -> profile = profileDb}
 
     var spells by remember { mutableStateOf<List<Spell>>(mutableListOf()) }
     getLearnedSpells(friendUsername!!){ spellsDb -> spells = spellsDb }
@@ -69,13 +76,15 @@ fun LearnedSpellsScreenContent(
 
         Spacer(modifier = modifier.height(24.dp))
 
-        UserCard(
-            username = "Dumbledory",
-            composable = { RemoveButton(modifier) },
-            modifier = modifier,
-            picture = R.drawable.face,
-            wand = R.drawable.wand_side
-        )
+        profile.username?.let {
+            UserCard(
+                username = it,
+                composable = { RemoveButton(modifier, getUsername(context!!), profile.username!!, navController!!) },
+                modifier = modifier,
+                picture = profile.photo!!,
+                wand = profile.wandSide!!
+            )
+        }
 
         Spacer(modifier = modifier.height(24.dp))
 
@@ -104,8 +113,7 @@ fun LearnedSpellsScreenContent(
                 ),
                 modifier = Modifier.padding(start = 10.dp).clickable {
 
-                    //friend.username
-                    navController!!.navigate(Screens.PotionsSocial.route.replace(oldValue = "{friendUsername}", newValue = "FriendTest"))
+                    navController!!.navigate(Screens.PotionsSocial.route.replace(oldValue = "{friendUsername}", newValue = friendUsername))
                 },
             )
         }
@@ -113,16 +121,22 @@ fun LearnedSpellsScreenContent(
         Spacer(modifier = modifier.height(16.dp))
 
         spells.forEach { spell ->
-
-            PotionSpellCard(
-                name = toUpperCase(spell.name!!),
-                image = R.drawable.spell,
-                description = spell.description!!,
-                buttonLabel = "Practice",
-                onButtonClick = {
-                    navController!!.navigate(Screens.MovementSpells.route.replace(oldValue = "{spellKey}", newValue = spell.key!!))
-                }
-            )
+            spell.name?.let {
+                PotionSpellCard(
+                    name = toUpperCase(spell.name!!),
+                    image = getSpellImage(spell.color!!),
+                    description = spell.description!!,
+                    buttonLabel = "Practice",
+                    onButtonClick = {
+                        navController!!.navigate(
+                            Screens.MovementSpells.route.replace(
+                                oldValue = "{spellKey}",
+                                newValue = spell.key!!
+                            )
+                        )
+                    }
+                )
+            }
         }
     }
 }

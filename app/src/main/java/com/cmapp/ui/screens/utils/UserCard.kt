@@ -1,5 +1,6 @@
 package com.cmapp.ui.screens.utils
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -32,16 +33,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.cmapp.R
 
 @Composable
 fun UserCard(
     username: String,
-    wand: Int,
-    picture: Int,
+    wand: String,
+    picture: String,
     composable: @Composable () -> Unit,
     modifier: Modifier
 ) {
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -57,9 +60,9 @@ fun UserCard(
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = picture),
+                painter = rememberAsyncImagePainter(Uri.parse(picture)),
                 contentDescription = "profile picture",
-                contentScale = ContentScale.Inside,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(70.dp)
                     .padding(8.dp)
@@ -75,7 +78,7 @@ fun UserCard(
                 )
                 )
                 Image(
-                    painter = painterResource(id = wand), // Replace with your image resource
+                    painter = rememberAsyncImagePainter(Uri.parse(wand)), // Replace with your image resource
                     contentDescription = "Image at Bottom Center",
                     modifier = Modifier
                         .width(140.dp),
@@ -91,7 +94,7 @@ fun UserCard(
 @Composable
 fun UserCardPreview() {
     UserCard(
-        modifier = Modifier, username = "Harry Potter", picture = R.drawable.face, wand = R.drawable.wand_side, composable = {
+        modifier = Modifier, username = "Harry Potter", picture = "", wand = "", composable = {
         Button(
             onClick = {},
             modifier = Modifier
@@ -105,7 +108,7 @@ fun UserCardPreview() {
             contentPadding = PaddingValues(0.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.pencil),
+                painter = painterResource(id = R.drawable.edit),
                 contentDescription = "Edit Profile",
                 modifier = Modifier.size(20.dp),
                 colorFilter = ColorFilter.tint(Color.White)
@@ -124,7 +127,7 @@ fun UserCardPreview() {
             contentPadding = PaddingValues(0.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.gear_wheel),
+                painter = painterResource(id = R.drawable.exit),
                 contentDescription = "Settings",
                 modifier = Modifier.size(20.dp),
                 colorFilter = ColorFilter.tint(Color.White)

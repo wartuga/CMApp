@@ -30,8 +30,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getLearnedPotions
+import com.cmapp.model.data.DataBaseHelper.getProfile
+import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Potion
+import com.cmapp.model.domain.database.Profile
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.PotionSpellCard
 import com.cmapp.ui.screens.utils.RemoveButton
@@ -55,10 +58,11 @@ fun LearnedPotionsScreen(
 @Composable
 fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostController?, context: Context?, friendUsername: String?) {
 
+    var profile by remember { mutableStateOf<Profile>(Profile()) }
+    getProfile(friendUsername!!){ profileDb -> profile = profileDb}
+
     var potions by remember { mutableStateOf<List<Potion>>(mutableListOf()) }
     getLearnedPotions(friendUsername!!){ potionsDb -> potions = potionsDb }
-
-    //USER INFO
 
     val scrollState = rememberScrollState()
 
@@ -66,13 +70,15 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
 
         Spacer(modifier = modifier.height(24.dp))
 
-        UserCard(
-            username = "Dumbledory",
-            composable = { RemoveButton(modifier) },
-            modifier = modifier,
-            picture = R.drawable.face, wand = R.drawable.wand_side
-
-        )
+        profile.username?.let {
+            UserCard(
+                username = it,
+                composable = { RemoveButton(modifier, getUsername(context!!), profile.username!!, navController!!) },
+                modifier = modifier,
+                picture = profile.photo!!,
+                wand = profile.wandSide!!
+            )
+        }
 
         Spacer(modifier = modifier.height(24.dp))
 
@@ -91,9 +97,7 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
                     color = Color.Gray
                 ),
                 modifier = Modifier.clickable {
-
-                    //friend.username
-                    navController!!.navigate(Screens.SpellsSocial.route.replace(oldValue = "{friendUsername}", newValue = "FriendTest"))
+                    navController!!.navigate(Screens.SpellsSocial.route.replace(oldValue = "{friendUsername}", newValue = friendUsername))
                 },
             )
             Text(
@@ -112,16 +116,22 @@ fun LearnedPotionsScreenContent(modifier: Modifier, navController: NavHostContro
         Spacer(modifier = modifier.height(16.dp))
 
         potions.forEach { potion ->
-
-            PotionSpellCard(
-                name = toUpperCase(potion.name!!),
-                description = potion.description!!,
-                image = R.drawable.potion,
-                buttonLabel = "Practice",
-                onButtonClick = {
-                    navController!!.navigate(Screens.MapPotions.route.replace(oldValue = "{potionKey}", newValue = potion.key!!))
-                }
-            )
+            potion.name?.let {
+                PotionSpellCard(
+                    name = toUpperCase(potion.name!!),
+                    description = potion.description!!,
+                    image = R.drawable.potion,
+                    buttonLabel = "Practice",
+                    onButtonClick = {
+                        navController!!.navigate(
+                            Screens.MapPotions.route.replace(
+                                oldValue = "{potionKey}",
+                                newValue = potion.key!!
+                            )
+                        )
+                    }
+                )
+            }
         }
     }
 }
