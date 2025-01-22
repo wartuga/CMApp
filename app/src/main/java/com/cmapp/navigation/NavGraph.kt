@@ -56,7 +56,7 @@ fun NavGraph(
         }
 
         composable(route = Screens.MovementSpells.route + "?spellKey={spellKey}") { navBackStack ->
-            var spellKey: String = navBackStack.arguments?.getString("spellKey").toString()
+            val spellKey: String = navBackStack.arguments?.getString("spellKey").toString()
             MovementScreen(navController = navController, context = context, spellKey = spellKey)
         }
 

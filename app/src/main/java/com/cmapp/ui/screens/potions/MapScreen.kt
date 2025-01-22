@@ -120,6 +120,23 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             ingredients = it.split(",")
     }
 
+    val context = LocalContext.current
+    var userLocation by remember { mutableStateOf<LatLng?>(null) }
+    TrackUserLocation(context) { location ->
+        userLocation = location
+    }
+
+    // Generate places for each ingredient ONLY for the first location
+    val placesByIngredient = remember { mutableStateOf<Map<String, List<LatLng>>>(emptyMap()) }
+    LaunchedEffect(userLocation) {
+        if (userLocation != null && placesByIngredient.value.isEmpty()) {
+            val generatedPlaces = ingredients.associateWith { ingredient ->
+                generateRandomPlaces(5, userLocation!!)
+            }
+            placesByIngredient.value = generatedPlaces
+        }
+    }
+
     Column(
 
         modifier = modifier.fillMaxSize().fillMaxHeight(),
@@ -195,9 +212,9 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             TrackUserLocation(context) { location ->
                 userLocation = location
             }
-
+            //val places = userLocation?.let { generateRandomPlaces(5, it) } ?: emptyList()
             // Generate random places once the user location is available
-            val places = remember(userLocation) {
+           val places = remember(userLocation) {
                 userLocation?.let { generateRandomPlaces(5, it) } ?: emptyList()
             }
 
@@ -206,7 +223,8 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
 //                cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 30.0F)
 //            }
             GoogleMap(
-                modifier = Modifier.weight(1f) // Takes remaining vertical space
+                modifier = Modifier
+                    .weight(1f) // Takes remaining vertical space
                     .fillMaxWidth(),//.height(MAP_SIZE.dp),//.fillMaxSize(),
                 properties = mapProperties,
                 uiSettings = uiSettings,
@@ -220,19 +238,18 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                         icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
                     )
                 }*/
-            
                 // Place markers for the random locations
-                val markerBitmap = createNumberBitmap(context, 2)
-                places.forEach { place ->
-                    Marker(
-                        position = place,
-                        title = "Ingredient",
-                        snippet = "An ingredient description",
-                        icon = BitmapDescriptorFactory.fromBitmap(markerBitmap)
-                    )
+                placesByIngredient.value.forEach { (ingredient, places) ->
+                    val markerBitmap = createNumberBitmap(context, ingredients.indexOf(ingredient) + 1)
+                    places.forEach { place ->
+                        Marker(
+                            position = place,
+                            title = ingredient,
+                            icon = BitmapDescriptorFactory.fromBitmap(markerBitmap)
+                        )
+                    }
                 }
             }
-
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
             Text(
