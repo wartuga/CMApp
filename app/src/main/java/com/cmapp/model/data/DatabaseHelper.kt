@@ -495,7 +495,7 @@ object DataBaseHelper {
 
 fun getLocationsByIngredient(ingredient: String, onResult: (List<LatLng>) -> Unit) {
 
-    database.getReference("ingredients").addListenerForSingleValueEvent(object : ValueEventListener {
+    database.getReference("ingredients").child(ingredient).child("positions").addListenerForSingleValueEvent(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
 
             if (snapshot.exists()) {

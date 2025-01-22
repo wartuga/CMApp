@@ -1,12 +1,16 @@
 package com.cmapp.ui.screens.potions
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.os.Looper
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,13 +41,20 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getPotion
+import com.cmapp.model.data.addLocationByIngredient
+import com.cmapp.model.data.getLocationsByIngredient
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -53,13 +64,19 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
 const val TITLE_SIZE = 28
 const val FONT_SIZE = 20
-//const val MAP_SIZE = 330 //It takes up the remaining space in the screen
+//const val MAP_SIZE = 330 //It takes up the remaining space in the screen now
 const val PADDING = 5
 
 @Composable
@@ -80,13 +97,13 @@ fun CheckAndRequestLocationPermission(
     context: Context,
     content: @Composable () -> Unit
 ) {
-    val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
+    val permission = Manifest.permission.ACCESS_FINE_LOCATION
     var permissionGranted by remember {
         mutableStateOf(
-            androidx.core.content.ContextCompat.checkSelfPermission(
+            ContextCompat.checkSelfPermission(
                 context,
                 permission
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED
         )
     }
 
@@ -95,8 +112,8 @@ fun CheckAndRequestLocationPermission(
         content()
     } else {
         // Request permission using a launcher
-        val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-            contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
         ) { isGranted -> permissionGranted = isGranted }
 
         LaunchedEffect(Unit) {
@@ -120,12 +137,16 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             ingredients = it.split(",")
     }
 
-    val context = LocalContext.current
+    //val context = LocalContext.current
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
-    TrackUserLocation(context) { location ->
-        userLocation = location
+    if (context != null) {
+        TrackUserLocation(context) { location ->
+            userLocation = location
+        }
     }
+    val cameraPositionState = rememberCameraPositionState()
 
+    // WHEN GETTING LOCATION FOR THE FIRST TIME
     // Generate places for each ingredient ONLY for the first location
     val placesByIngredient = remember { mutableStateOf<Map<String, List<LatLng>>>(emptyMap()) }
     LaunchedEffect(userLocation) {
@@ -134,11 +155,32 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 generateRandomPlaces(5, userLocation!!)
             }
             placesByIngredient.value = generatedPlaces
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation!!, 10.0F)
+        }
+    }
+    // Get places from DB
+    val placesByIngredientFromDB = remember { mutableStateOf<Map<String, List<LatLng>>>(emptyMap()) }
+    if (userLocation != null && placesByIngredient.value.isEmpty()) {
+        val dbPlaces = mutableMapOf<String, List<LatLng>>()  // Local map to hold the fetched locations
+
+        ingredients.forEach { ingredient ->
+            getLocationsByIngredient(ingredient) { locationsFromDB ->
+                   println("***********************************************INGREDIENT" + ingredient)
+                if (locationsFromDB.isNotEmpty()) {
+                    dbPlaces[ingredient] = locationsFromDB
+                    println("***********************************************PLACES" + locationsFromDB)
+                } else{
+                    dbPlaces[ingredient] = emptyList()
+                    println("***********************************************PLACES none" )
+                }
+                    if (dbPlaces.size == ingredients.size) {
+                        placesByIngredientFromDB.value = dbPlaces
+                    }
+            }
         }
     }
 
-    Column(
-
+        Column(
         modifier = modifier.fillMaxSize().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -198,22 +240,21 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             )
         }
         Row(modifier = modifier.padding(PADDING.dp).weight(1f) ) {
-            val context = LocalContext.current
+            //val context = LocalContext.current
             var uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
             var mapProperties by remember {
                 mutableStateOf(MapProperties(mapType = MapType.NORMAL, isMyLocationEnabled = true))
             }
 
-            val cameraPositionState = rememberCameraPositionState()
-
             // Track the user's location dynamically
             var userLocation by remember { mutableStateOf<LatLng?>(null) }
 
-            TrackUserLocation(context) { location ->
-                userLocation = location
+            if (context != null) {
+                TrackUserLocation(context) { location ->
+                    userLocation = location
+                }
             }
-            //val places = userLocation?.let { generateRandomPlaces(5, it) } ?: emptyList()
-            // Generate random places once the user location is available
+
            val places = remember(userLocation) {
                 userLocation?.let { generateRandomPlaces(5, it) } ?: emptyList()
             }
@@ -224,7 +265,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
 //            }
             GoogleMap(
                 modifier = Modifier
-                    .weight(1f) // Takes remaining vertical space
+                    .weight(1f) // Takes remaining vertical space (doesnt fill to the bottom anymore)
                     .fillMaxWidth(),//.height(MAP_SIZE.dp),//.fillMaxSize(),
                 properties = mapProperties,
                 uiSettings = uiSettings,
@@ -239,13 +280,44 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                     )
                 }*/
                 // Place markers for the random locations
+                // RANDOM CLOSE TO PLAYER
                 placesByIngredient.value.forEach { (ingredient, places) ->
-                    val markerBitmap = createNumberBitmap(context, ingredients.indexOf(ingredient) + 1)
+
+                    val markerBitmap = context?.let { createNumberBitmap(it, ingredients.indexOf(ingredient) + 1) }
                     places.forEach { place ->
                         Marker(
                             position = place,
                             title = ingredient,
-                            icon = BitmapDescriptorFactory.fromBitmap(markerBitmap)
+                            snippet = "Tap to share location",
+                            icon = markerBitmap?.let { BitmapDescriptorFactory.fromBitmap(it) },
+                            onInfoWindowClick = { marker ->
+                                // Show dialog or trigger share intent when a marker is clicked
+                                if(marker.snippet != "Location has been shared."){
+                                    shareLocation(marker.position, ingredient)
+                                    marker.snippet = "Location has been shared."
+                                }
+                                true // Returning true to consume the click event
+                            }
+                        )
+                    }
+                }
+
+                // Place markers for the DB locations
+                placesByIngredientFromDB.value.forEach { (ingredient, places) ->
+                    val markerBitmap = context?.let { createNumberBitmap(it, ingredients.indexOf(ingredient) + 1) }
+                    places.forEach { place ->
+                        Marker(
+                            position = place,
+                            title = ingredient,
+                            snippet = "A user shared this ingredient.",
+                           icon = markerBitmap?.let { BitmapDescriptorFactory.fromBitmap(it) }// ,
+//                            onInfoWindowClick = { marker ->
+//                                if (marker.snippet != "Location has been shared.") {
+//                                    shareLocation(marker.position, ingredient)
+//                                    marker.snippet = "Location has been shared."
+//                                }
+//                                true // Returning true to consume the click event
+//                            }
                         )
                     }
                 }
@@ -296,6 +368,11 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
     }
 }
 
+fun shareLocation(position: LatLng, ingredient: String) {
+println("******************* SHARED")
+    addLocationByIngredient(ingredient,position)
+}
+
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -303,8 +380,8 @@ fun TrackUserLocation(context: Context, onLocationUpdated: (LatLng) -> Unit) {
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     val locationCallback = rememberUpdatedState(
-        object : com.google.android.gms.location.LocationCallback() {
-            override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
+        object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation ?: return
                 onLocationUpdated(LatLng(location.latitude, location.longitude))
             }
@@ -312,8 +389,8 @@ fun TrackUserLocation(context: Context, onLocationUpdated: (LatLng) -> Unit) {
     )
 
     DisposableEffect(Unit) {
-        val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
-            com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY,
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
             1000L // Update interval (in milliseconds)
         ).build()
 
@@ -373,4 +450,12 @@ fun createNumberBitmap(context: Context, number: Int): Bitmap {
     canvas.drawText(number.toString(), radius, textY, textPaint)
 
     return bitmap
+}
+
+suspend fun getLocationsFromDb(ingredient: String): List<LatLng> {
+    return suspendCoroutine { continuation ->
+        getLocationsByIngredient(ingredient) { locations ->
+            continuation.resume(locations)
+        }
+    }
 }
