@@ -88,7 +88,7 @@ fun addLearnedSpell(username: String, spellKey: String, spellName: String): Comp
 
     val completableFuture = CompletableFuture<Boolean>()
 
-    database.getReference("usersInfo").child(username).child("spells").setValue(spellKey)
+    database.getReference("usersInfo").child(username).child("spells").child(spellKey).setValue("")
         .addOnCompleteListener { task ->
 
         if (task.isSuccessful) { completableFuture.complete(true) }

@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -200,112 +201,150 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 )
             }
         }
-        Spacer(modifier = modifier.height(32.dp))
+        Spacer(modifier = modifier.height(28.dp))
         Row() {
             Image(
                 painter = painterResource(id = R.drawable.timer),
-                contentDescription = "clock",
+                contentDescription = "Clock",
                 modifier = Modifier
-                    .size(30.dp)
-                    .padding(end = 4.dp),
-                colorFilter = ColorFilter.tint(Color.White)
+                    .size(34.dp)
+                    .padding(end = 4.dp)
+                    .offset(y = -3.dp),
+                colorFilter = ColorFilter.tint(Color.Red)
             )
             Text(
                 text = "${remainingTime / 1000}s",
-                color = Color.White,
-                fontSize = 20.sp
+                color = Color.Red,
+                fontSize = 28.sp
             )
         }
-        Spacer(modifier = modifier.height(12.dp))
-        Row(
-            modifier = modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp).offset(x = -2.dp)
+            .padding(horizontal = 32.dp)
         ) {
-            // previous movement
-            val previousRes = when (previousMove) {
-                "right" -> R.drawable.arrow_right
-                "up-right" -> R.drawable.arrow_up_right
-                "up" -> R.drawable.arrow_up
-                "up-left" -> R.drawable.arrow_up_left
-                "left" -> R.drawable.arrow_left
-                else -> null // return null for invalid cases
-            }
 
-            var minimalSize = 30.dp
-            if(previousMove == "up-left" || previousMove == "up-right"){ minimalSize -= 8.dp }
-
-            if(previousRes != null){
-                Image(
-                    painter = painterResource(id = previousRes),
-                    contentDescription = "Movimento",
-                    modifier = Modifier.size(minimalSize),
-                    colorFilter = ColorFilter.tint(Color(218, 198, 108))
-                )
-            } else {
-                Spacer(Modifier.size(50.dp))
-            }
-            var size = 60.dp
-            if(move == "up-left" || move == "up-right"){ size -= 8.dp }
-
-            // current movement
             Image(
-                painter = painterResource(id =
-                    when (move) {
-                        "right" -> R.drawable.arrow_right
-                        "up-right" -> R.drawable.arrow_up_right
-                        "up" -> R.drawable.arrow_up
-                        "up-left" -> R.drawable.arrow_up_left
-                        "left" -> R.drawable.arrow_left
-                        else -> R.drawable.arrow_up
-                    }
-                ),
-                contentDescription = "Movimento",
-                modifier = Modifier.size(size),
-                colorFilter = ColorFilter.tint(moveColor)
-            )
-            // next movement
-            val nextRes = when (nextMove) {
-                "right" -> R.drawable.arrow_right
-                "up-right" -> R.drawable.arrow_up_right
-                "up" -> R.drawable.arrow_up
-                "up-left" -> R.drawable.arrow_up_left
-                "left" -> R.drawable.arrow_left
-                else -> null // return null for invalid cases
-            }
-
-            minimalSize = 30.dp
-            if(nextMove == "up-left" || nextMove == "up-right"){ minimalSize -= 8.dp }
-
-            if(nextRes != null){
-                Image(
-                    painter = painterResource(id = nextRes),
-                    contentDescription = "Movimento",
-                    modifier = Modifier.size(minimalSize),
-                    colorFilter = ColorFilter.tint(Color.White)
-                )
-            } else {
-                Spacer(Modifier.size(50.dp))
-            }
-        }
-        Box(
-            modifier = Modifier.fillMaxSize() // Make the Box fill the screen
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(Uri.parse(wand)), // Replace with your image resource
-                contentDescription = "Image at Bottom Center",
-                modifier = Modifier.align(Alignment.BottomCenter)
-                    .size(400.dp)
-                    .padding(bottom = 32.dp)
-                    .graphicsLayer(
-                        rotationZ = imageRotationAngle,
-                        transformOrigin = TransformOrigin(0.5f, 0.9f)
-                    ) // Align image at the bottom center
+                painter = painterResource(id = R.drawable.gold_layer),
+                contentDescription = "Larger Center Image",
+                modifier = Modifier.fillMaxSize(), // Larger size
+                contentScale = ContentScale.Crop
             )
 
+            Row(
+                modifier = modifier
+                    .fillMaxWidth().offset(y = 24.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // previous movement
+                val previousRes = when (previousMove) {
+                    "right" -> R.drawable.arrow_right
+                    "up-right" -> R.drawable.arrow_up_right
+                    "up" -> R.drawable.arrow_up
+                    "up-left" -> R.drawable.arrow_up_left
+                    "left" -> R.drawable.arrow_left
+                    else -> null // return null for invalid cases
+                }
+
+                var offsetY = 8.dp
+                var offsetX  = -4.dp
+                var minimalSize = 30.dp
+                if (previousMove == "up-left" || previousMove == "up-right") {
+                    minimalSize -= 8.dp
+                    offsetY -= 2.dp
+                    offsetX  -= -2.dp
+                }
+
+                if (previousRes != null) {
+                    Image(
+                        painter = painterResource(id = previousRes),
+                        contentDescription = "Movimento",
+                        modifier = Modifier.size(minimalSize).offset(x = offsetX, y = offsetY),
+                        colorFilter = ColorFilter.tint(Color(218, 198, 108))
+                    )
+                } else {
+                    Spacer(Modifier.size(50.dp))
+                }
+
+                offsetY = 5.dp
+                offsetX  = 4.dp
+                var size = 50.dp
+                if (move == "up-left" || move == "up-right") {
+                    size -= 8.dp
+                    offsetY += 2.dp
+                    offsetX  -= 6.dp
+                }
+
+                // current movement
+                Image(
+                    painter = painterResource(
+                        id =
+                        when (move) {
+                            "right" -> R.drawable.arrow_right
+                            "up-right" -> R.drawable.arrow_up_right
+                            "up" -> R.drawable.arrow_up
+                            "up-left" -> R.drawable.arrow_up_left
+                            "left" -> R.drawable.arrow_left
+                            else -> R.drawable.arrow_up
+                        }
+                    ),
+                    contentDescription = "Movimento",
+                    modifier = Modifier.size(size).offset(x = offsetX, y = offsetY),
+                    colorFilter = ColorFilter.tint(moveColor)
+                )
+
+                // next movement
+                val nextRes = when (nextMove) {
+                    "right" -> R.drawable.arrow_right
+                    "up-right" -> R.drawable.arrow_up_right
+                    "up" -> R.drawable.arrow_up
+                    "up-left" -> R.drawable.arrow_up_left
+                    "left" -> R.drawable.arrow_left
+                    else -> null // return null for invalid cases
+                }
+
+                offsetY = 8.dp
+                offsetX  = 2.dp
+                minimalSize = 30.dp
+                if (nextMove == "up-left" || nextMove == "up-right") {
+                    minimalSize -= 8.dp
+                    offsetY -= 2.dp
+                    offsetX  -= -4.dp
+                }
+
+
+                if (nextRes != null) {
+                    Image(
+                        painter = painterResource(id = nextRes),
+                        contentDescription = "Movimento",
+                        modifier = Modifier.size(minimalSize).offset(x = offsetX, y = offsetY),
+                        colorFilter = ColorFilter.tint(Color.White)
+                    )
+                } else {
+                    Spacer(Modifier.size(50.dp))
+                }
+            }
         }
+
+            Box(
+                modifier = Modifier.fillMaxSize().padding(bottom = 8.dp)// Make the Box fill the screen
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(Uri.parse(wand)), // Replace with your image resource
+                    contentDescription = "Image at Bottom Center",
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                        .size(400.dp)
+                        .graphicsLayer(
+                            rotationZ = imageRotationAngle,
+                            transformOrigin = TransformOrigin(0.5f, 0.9f)
+                        ) // Align image at the bottom center
+                )
+
+            }
+
     }
 }
 
