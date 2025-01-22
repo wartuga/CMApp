@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,8 +49,7 @@ import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.addLearnedSpell
 import com.cmapp.model.data.getSpellAsync
-import com.cmapp.model.data.getWandsFront
-import com.cmapp.model.domain.database.Profile
+import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlinx.coroutines.delay
@@ -186,7 +186,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
             Log.d("spell", spell.toString())
             var time = 0    // time in milliseconds
             val spellTime = spell.time!! * 1000
-            while (i < spell.movements.size) {
+            while (i <= spell.movements.size) {
                 delay(100) // Check every 100ms
                 time += 100
                 val currentTime = System.currentTimeMillis()
@@ -200,7 +200,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 }
 
                 if (currentTime - lastTimestamp >= 1500L && wandDirection == move) {
-                    moveColor = Color.Green
+                    moveColor = Color(218, 198, 108)
                     delay(250L) // Wait
 
                     if (i < spell.movements.size) {
@@ -214,7 +214,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                     } else {
                         Toast.makeText(context, "You learned a new spell", Toast.LENGTH_LONG).show()
                         val username: String = getUsername(context)
-                        addLearnedSpell(username, spellKey)
+                        addLearnedSpell(username, spellKey, spell.name!!)
                         navController?.popBackStack()
                         break
                     }
@@ -226,19 +226,20 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
     }
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxSize().padding(top=24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(modifier = modifier.padding(30.dp)) {
+        Row() {
             spell.name?.let {
                 Text(
-                    text = it,
+                    text = toUpperCase(it),
                     color = Color.White,
                     fontSize = 36.sp
                 )
             }
         }
-        Row(modifier = modifier.padding(16.dp)) {
+        Spacer(modifier = modifier.height(32.dp))
+        Row() {
             Image(
                 painter = painterResource(id = R.drawable.timer),
                 contentDescription = "clock",
@@ -253,11 +254,13 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 fontSize = 20.sp
             )
         }
+        Spacer(modifier = modifier.height(12.dp))
         Row(
             modifier = modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // previous movement
             val previousRes = when (previousMove) {
@@ -268,16 +271,23 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 "left" -> R.drawable.arrow_left
                 else -> null // return null for invalid cases
             }
+
+            var minimalSize = 30.dp
+            if(previousMove == "up-left" || previousMove == "up-right"){ minimalSize -= 8.dp }
+
             if(previousRes != null){
                 Image(
                     painter = painterResource(id = previousRes),
                     contentDescription = "Movimento",
-                    modifier = Modifier.size(50.dp),
-                    colorFilter = ColorFilter.tint(Color.White)
+                    modifier = Modifier.size(minimalSize),
+                    colorFilter = ColorFilter.tint(Color(218, 198, 108))
                 )
             } else {
                 Spacer(Modifier.size(50.dp))
             }
+            var size = 60.dp
+            if(move == "up-left" || move == "up-right"){ size -= 8.dp }
+
             // current movement
             Image(
                 painter = painterResource(id =
@@ -291,7 +301,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                     }
                 ),
                 contentDescription = "Movimento",
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(size),
                 colorFilter = ColorFilter.tint(moveColor)
             )
             // next movement
@@ -303,11 +313,15 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 "left" -> R.drawable.arrow_left
                 else -> null // return null for invalid cases
             }
+
+            minimalSize = 30.dp
+            if(nextMove == "up-left" || nextMove == "up-right"){ minimalSize -= 8.dp }
+
             if(nextRes != null){
                 Image(
                     painter = painterResource(id = nextRes),
                     contentDescription = "Movimento",
-                    modifier = Modifier.size(50.dp),
+                    modifier = Modifier.size(minimalSize),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
             } else {

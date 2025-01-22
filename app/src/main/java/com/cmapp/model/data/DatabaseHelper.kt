@@ -36,17 +36,25 @@ object DataBaseHelper {
 
     val imageStorage = FirebaseStorage.getInstance("gs://hogwarts-apprentice.firebasestorage.app")
 
-    fun addNotificationListener(onNotificationReceived: (String, Spell) -> Unit) {
-        val myRef = database.getReference("notifications")
+    fun addNotificationListener(onNotificationReceived: (String, String) -> Unit) {
+        val notificationsRef = database.getReference("notifications")
 
-        myRef.addChildEventListener(object : ChildEventListener {
+        notificationsRef.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 // A new notification has been added
                 val username = snapshot.key // The username is the child key
-                val spell = snapshot.getValue(Spell::class.java) // The spellKey is the value
+                if (username != null) {
+                    // Iterate through the children of the username node
+                    for (spellSnapshot in snapshot.children) {
+                        val spellName = spellSnapshot.key // Get the spell name
+                        val spellValue = spellSnapshot.getValue(String::class.java) // Get the value (if applicable)
 
-                if (username != null && spell != null) {
-                    onNotificationReceived(username, spell)
+                        if (spellName != null) {
+                            onNotificationReceived(username, spellName)
+                            // notification cleanup
+                            notificationsRef.child(username).child(spellName).removeValue()
+                        }
+                    }
                 }
             }
 
@@ -222,7 +230,7 @@ object DataBaseHelper {
 
         val completableFuture = CompletableFuture<Boolean>()
 
-        database.getReference("usersInfo").child(friendUsername).child("requests").setValue(username).addOnCompleteListener { task ->
+        database.getReference("usersInfo").child(friendUsername).child("requests").child(username).setValue("").addOnCompleteListener { task ->
 
             if (task.isSuccessful) {
                 completableFuture.complete(true)
@@ -427,6 +435,10 @@ object DataBaseHelper {
             }
 
         return completableFuture
+    }
+
+    fun getLabel(username: String): String {
+        return listOf("Practice", "Learn").random()
     }
 
     fun addLearnedPotion(username: String, potionkey: String): CompletableFuture<Boolean> {

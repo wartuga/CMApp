@@ -169,20 +169,32 @@ fun AcceptRejectButtons(modifier: Modifier, username: String, friendUsername: St
 @Composable
 fun RequestButton(modifier: Modifier, username: String, friendUsername: String) {
 
-    //CANCEL
+    var buttonText by remember { mutableStateOf("Request") }
+    var buttonColor by remember { mutableStateOf(Color(83, 12, 114)) }
 
     Button(
-        onClick = {DataBaseHelper.addFriendRequest(username, friendUsername)},
+        onClick = {
+            if(buttonText == "Cancel"){
+                buttonText = "Request"
+                buttonColor = Color(83, 12, 114)
+                DataBaseHelper.deleteFriendRequest(username, friendUsername)
+            }
+            else{
+                buttonText = "Cancel"
+                buttonColor = Color(126, 119, 130)
+                DataBaseHelper.addFriendRequest(username, friendUsername)
+            }
+                  },
         modifier = modifier
             .height(40.dp)
             .width(76.dp)
             .offset(x = 2.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(83, 12, 114)),
+        colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
         border = BorderStroke(2.dp, Color.White),
         contentPadding = PaddingValues(0.dp)
     ) {
         Text(
-            text = "Request",
+            text = buttonText,
             style = TextStyle(
                 fontSize = 26.sp,
                 fontFamily = FontFamily(Font(resId = R.font.harry)),
@@ -212,83 +224,4 @@ fun SwapButton(label: String, modifier: Modifier){
             .padding(8.dp),
         colorFilter = ColorFilter.tint(Color.White)
     )
-}
-
-@Composable
-fun SwapWand(username: String, initialWand: String, modifier: Modifier){
-
-    val wandsFront = getWandsFront()
-    val wandsSide = getWandsSide()
-
-    var currentIdx by remember { mutableIntStateOf(wandsFront.indexOf(initialWand)) }
-    var wandImage by remember { mutableStateOf(wandsFront[currentIdx]) }
-
-    if(currentIdx != -1) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.left_arrow),
-                contentDescription = "Left Arrow",
-                modifier = Modifier.clickable {
-                    if (currentIdx == 0) {
-                        currentIdx = wandsFront.size - 1
-                    } else {
-                        currentIdx -= 1
-                    }
-                    wandImage = wandsFront[currentIdx]
-                }
-                    .size(50.dp)
-                    .padding(8.dp),
-            )
-            Image(
-                painter = rememberAsyncImagePainter(Uri.parse(wandImage)), // Replace with your image resource
-                contentDescription = "Wand image",
-                modifier = Modifier
-                    .height(350.dp),
-                contentScale = ContentScale.FillHeight // Ensures the aspect ratio is maintained
-            )
-            Image(
-                painter = painterResource(id = R.drawable.right_arrow),
-                contentDescription = "Left Arrow",
-                modifier = Modifier.clickable {
-                    if (currentIdx == wandsFront.size - 1) {
-                        currentIdx = 0
-                    } else {
-                        currentIdx += 1
-                    }
-                    wandImage = wandsFront[currentIdx]
-                }
-                    .size(50.dp)
-                    .padding(8.dp),
-            )
-        }
-        Row(
-            modifier = modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Button(
-                onClick = {DataBaseHelper.updateWand(username, wandsFront[currentIdx], wandsSide[currentIdx])},
-                modifier = Modifier
-                    .padding(top = 16.dp),
-                border = BorderStroke(2.dp, Color.White),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(83, 12, 114), // Background color
-                    contentColor = Color.White   // Text/icon color
-                ),
-            ) {
-                Text(
-                    text = "Select",
-                    style = TextStyle(
-                        fontSize = 34.sp,
-                        fontFamily = FontFamily(Font(resId = R.font.harry)),
-                        color = Color.White
-                    ),
-                )
-            }
-        }
-    }
 }
