@@ -235,7 +235,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
             Row(
                 modifier = modifier
                     .fillMaxWidth().offset(y = 24.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -250,7 +250,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 }
 
                 var offsetY = 8.dp
-                var offsetX  = -4.dp
+                var offsetX  = -60.dp
                 var minimalSize = 30.dp
                 if (previousMove == "up-left" || previousMove == "up-right") {
                     minimalSize -= 8.dp
@@ -269,13 +269,13 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                     Spacer(Modifier.size(50.dp))
                 }
 
-                offsetY = 5.dp
-                offsetX  = 4.dp
+                offsetY = 4.dp
+                offsetX  = 2.dp
                 var size = 50.dp
                 if (move == "up-left" || move == "up-right") {
                     size -= 8.dp
-                    offsetY += 2.dp
-                    offsetX  -= 6.dp
+                    offsetY += 4.dp
+                    offsetX  -= 4.dp
                 }
 
                 // current movement
@@ -307,7 +307,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                 }
 
                 offsetY = 8.dp
-                offsetX  = 2.dp
+                offsetX  = 60.dp
                 minimalSize = 30.dp
                 if (nextMove == "up-left" || nextMove == "up-right") {
                     minimalSize -= 8.dp

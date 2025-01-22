@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
+import com.cmapp.model.data.DataBaseHelper.hasLearnedSpell
+import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.getSpells
 import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Spell
@@ -44,7 +46,7 @@ fun LearningScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { LearningScreenContent(modifier, navController) },
+        composable = { LearningScreenContent(modifier, navController, context) },
         modifier = modifier
     )
 }
@@ -52,7 +54,8 @@ fun LearningScreen(
 @Composable
 fun LearningScreenContent(
     modifier: Modifier,
-    navController: NavHostController?
+    navController: NavHostController?,
+    context: Context?
 ) {
     var spells by remember { mutableStateOf<List<Spell>>(mutableListOf()) }
     getSpells { spellsDb -> spells = spellsDb }
@@ -93,11 +96,19 @@ fun LearningScreenContent(
 
         spells.forEach { spell ->
             spell.name?.let {
+
+                var label by remember { mutableStateOf("Learn") }
+                hasLearnedSpell(username = getUsername(context!!), spellKey = spell.key!!) { learned ->
+                    if (learned) {
+                        label = "Practice"
+                    }
+                }
+
                 PotionSpellCard(
                     name = toUpperCase(spell.name!!),
                     image = spell.image!!,
                     description = spell.description!!,
-                    buttonLabel = "Learn",
+                    buttonLabel = label,
                     onButtonClick = {
                         navController!!.navigate(
                             Screens.MovementSpells.route.replace(

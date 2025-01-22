@@ -42,6 +42,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper
 import com.cmapp.model.data.DataBaseHelper.addFriends
+import com.cmapp.model.data.DataBaseHelper.areFriends
 import com.cmapp.model.data.DataBaseHelper.deleteFriendRequest
 import com.cmapp.model.data.DataBaseHelper.deleteFriends
 import com.cmapp.model.data.StorageHelper.setUsername
@@ -99,8 +100,8 @@ fun ProfileButtons(context: Context, modifier: Modifier, navController: NavContr
     }
     Button(
         onClick = {
+            navController.navigate(Screens.Login.route)
             setUsername(context, "")
-            navController?.navigate(Screens.Login.route)
         },
         modifier = Modifier
             .size(50.dp)
@@ -172,14 +173,21 @@ fun RequestButton(modifier: Modifier, username: String, friendUsername: String) 
     var buttonText by remember { mutableStateOf("Request") }
     var buttonColor by remember { mutableStateOf(Color(83, 12, 114)) }
 
+    areFriends(username, friendUsername) { friends ->
+        if(friends){
+            buttonText = "Friends"
+            buttonColor = Color(83, 12, 114)
+        }
+    }
+
     Button(
         onClick = {
             if(buttonText == "Cancel"){
                 buttonText = "Request"
-                buttonColor = Color(83, 12, 114)
+                buttonColor = Color(176, 48, 50)
                 DataBaseHelper.deleteFriendRequest(username, friendUsername)
             }
-            else{
+            else if(buttonText == "Request"){
                 buttonText = "Cancel"
                 buttonColor = Color(126, 119, 130)
                 DataBaseHelper.addFriendRequest(username, friendUsername)

@@ -2,11 +2,14 @@ package com.cmapp.ui.screens.profile
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -20,6 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -27,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.registerUser
 import com.cmapp.model.data.StorageHelper.setUsername
 import com.cmapp.navigation.Screens
@@ -38,13 +44,7 @@ fun RegisterScreen(
     context: Context? = null,
     navController: NavHostController? = null
 ) {
-    ScreenSkeleton(
-        navController = navController,
-        composable = {
-            RegisterScreenContent(modifier, context, navController)
-        },
-        modifier = modifier
-    )
+    RegisterScreenContent(modifier, context, navController)
 }
 
 @Composable
@@ -53,67 +53,78 @@ fun RegisterScreenContent(
     context: Context?,
     navController: NavHostController?
 ){
-
     var username by remember{ mutableStateOf("") }
     var password by remember{ mutableStateOf("") }
 
-    Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(modifier = Modifier.size(100.dp))
-        Row(horizontalArrangement = Arrangement.Center) {
-            Text(text = "Register", color = Color.White, fontSize = 42.sp)
-        }
+    Box(modifier = modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.bg),
+            contentDescription = "background",
+            contentScale = ContentScale.Crop
+        )
 
-        Spacer(modifier = Modifier.size(100.dp))
 
-        Row(horizontalArrangement = Arrangement.Start) {
-            Text(text = "Username", color = Color.White, fontSize = 24.sp)
-        }
-        Row {
-            TextField(
-                value = username,
-                onValueChange = { newValue -> username = newValue },
-                textStyle = TextStyle(fontSize = 20.sp)
-            )
-        }
-        Spacer(modifier = Modifier.size(20.dp))
-        Row(horizontalArrangement = Arrangement.Start) {
-            Text(text = "Password", color = Color.White, fontSize = 24.sp)
-        }
-        Row {
-            TextField(
-                value = password,
-                onValueChange = { newPassword -> password = newPassword },
-                textStyle = TextStyle(fontSize = 20.sp),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
-        }
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.size(100.dp))
+            Row(horizontalArrangement = Arrangement.Center) {
+                Text(text = "Register", color = Color.White, fontSize = 42.sp)
+            }
 
-        Spacer(modifier = Modifier.size(100.dp))
+            Spacer(modifier = Modifier.size(100.dp))
 
-        Row(horizontalArrangement = Arrangement.Center) {
-            Button(
-                onClick = {
-                    registerUser(
-                        username,
-                        password,
-                        onSuccess = {
-                            setUsername(context!!, username)
-                            navController?.navigate(Screens.WandProfile.route)
-                        },
-                        onError = { errorMessage ->
-                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-                        }
-                    )
-                },
-                content = { Text("Register") }
-            )
-        }
-        Row(horizontalArrangement = Arrangement.Center) {
-            Button(
-                onClick = { navController?.navigate(Screens.Login.route) },
-                content = { Text("Already have an account") }
-            )
+            Row(horizontalArrangement = Arrangement.Start) {
+                Text(text = "Username", color = Color.White, fontSize = 24.sp)
+            }
+            Row {
+                TextField(
+                    value = username,
+                    onValueChange = { newValue -> username = newValue },
+                    textStyle = TextStyle(fontSize = 20.sp)
+                )
+            }
+            Spacer(modifier = Modifier.size(20.dp))
+            Row(horizontalArrangement = Arrangement.Start) {
+                Text(text = "Password", color = Color.White, fontSize = 24.sp)
+            }
+            Row {
+                TextField(
+                    value = password,
+                    onValueChange = { newPassword -> password = newPassword },
+                    textStyle = TextStyle(fontSize = 20.sp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                )
+            }
+
+            Spacer(modifier = Modifier.size(100.dp))
+
+            Row(horizontalArrangement = Arrangement.Center) {
+                Button(
+                    onClick = {
+                        registerUser(
+                            username,
+                            password,
+                            onSuccess = {
+                                setUsername(context!!, username)
+                                navController?.navigate(Screens.WandProfile.route)
+                            },
+                            onError = { errorMessage ->
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    },
+                    content = { Text("Register") }
+                )
+            }
+            Row(horizontalArrangement = Arrangement.Center) {
+                Button(
+                    onClick = { navController?.navigate(Screens.Login.route) },
+                    content = { Text("Already have an account") }
+                )
+            }
         }
     }
 }

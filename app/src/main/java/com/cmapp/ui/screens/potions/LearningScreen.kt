@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getPotions
+import com.cmapp.model.data.DataBaseHelper.hasLearnedPotion
+import com.cmapp.model.data.DataBaseHelper.hasLearnedSpell
+import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.navigation.Screens
@@ -44,7 +47,7 @@ fun LearningScreen(
 ) {
     ScreenSkeleton(
         navController = navController,
-        composable = { LearningScreenContent(modifier, navController) },
+        composable = { LearningScreenContent(modifier, navController, context) },
         modifier = modifier
     )
 }
@@ -53,6 +56,7 @@ fun LearningScreen(
 fun LearningScreenContent(
     modifier: Modifier,
     navController: NavHostController?,
+    context: Context?
 ) {
     var potions by remember { mutableStateOf<List<Potion>>(mutableListOf()) }
     getPotions(){ potionsDb -> potions = potionsDb }
@@ -96,11 +100,19 @@ fun LearningScreenContent(
 
         potions.forEach { potion ->
             potion.name?.let {
+
+                var label by remember { mutableStateOf("Learn") }
+                hasLearnedPotion(username = getUsername(context!!), potionKey = potion.key!!) { learned ->
+                    if (learned) {
+                        label = "Practice"
+                    }
+                }
+
                 PotionSpellCard(
                     name = toUpperCase(potion.name!!),
                     description = potion.description!!,
                     image = potion.image!!,
-                    buttonLabel = "Learn",
+                    buttonLabel = label,
                     onButtonClick = {
                         navController!!.navigate(
                             Screens.MapPotions.route.replace(

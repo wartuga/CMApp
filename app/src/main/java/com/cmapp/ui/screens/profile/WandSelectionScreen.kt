@@ -62,49 +62,63 @@ fun WandSelectionScreen(
 @Composable
 private fun WandSelectionScreenContent(modifier: Modifier, context: Context, navController: NavHostController?) {
 
-    var profileImage by remember { mutableStateOf<String?>("") }
+    if (getUsername(context) != "") {
 
-    var profile by remember { mutableStateOf(Profile()) }
-    getProfile(getUsername(context)){ profileDb ->
-        profile = profileDb
-        profileImage = profileDb.photo
-    }
+        var profileImage by remember { mutableStateOf<String?>("") }
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        profileImage = uri.toString()
-        DataBaseHelper.updateProfilePhoto(getUsername(context), uri.toString())
-    }
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = modifier.height(24.dp))
-        profile.username?.let {
-            UserCard(
-                composable = {ProfileButtons(context, modifier, navController!!, galleryLauncher) },
-                modifier = modifier,
-                picture = profileImage!!,
-                wand = profile.wandSide!!,
-                username = it
-            )
+        var profile by remember { mutableStateOf(Profile()) }
+        getProfile(getUsername(context)) { profileDb ->
+            profile = profileDb
+            profileImage = profileDb.photo
         }
-        Row(modifier = modifier.padding(top=46.dp)) {
-            Text(
-                text = "PICK YOUR WAND",
-                style = TextStyle(
-                    fontSize = 36.sp,
-                    fontFamily = FontFamily(Font(resId = R.font.harry)),
-                    color = Color.White
-                ),
-                color = Color.White,
-            )
+
+        val galleryLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            profileImage = uri.toString()
+            DataBaseHelper.updateProfilePhoto(getUsername(context), uri.toString())
         }
-        Spacer(modifier = modifier.height(16.dp))
-        profile.wandFront?.let {
-            SwapWand(username = getUsername(context), initialWand = profile.wandFront!!, modifier = modifier)
+
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = modifier.height(24.dp))
+            profile.username?.let {
+                UserCard(
+                    composable = {
+                        ProfileButtons(
+                            context,
+                            modifier,
+                            navController!!,
+                            galleryLauncher
+                        )
+                    },
+                    modifier = modifier,
+                    picture = profileImage!!,
+                    wand = profile.wandSide!!,
+                    username = it
+                )
+            }
+            Row(modifier = modifier.padding(top = 46.dp)) {
+                Text(
+                    text = "PICK YOUR WAND",
+                    style = TextStyle(
+                        fontSize = 36.sp,
+                        fontFamily = FontFamily(Font(resId = R.font.harry)),
+                        color = Color.White
+                    ),
+                    color = Color.White,
+                )
+            }
+            Spacer(modifier = modifier.height(16.dp))
+            profile.wandFront?.let {
+                SwapWand(
+                    username = getUsername(context),
+                    initialWand = profile.wandFront!!,
+                    modifier = modifier
+                )
+            }
         }
     }
 }

@@ -437,8 +437,56 @@ object DataBaseHelper {
         return completableFuture
     }
 
-    fun getLabel(username: String): String {
-        return listOf("Practice", "Learn").random()
+    fun areFriends(username: String, friendUsername: String, onResult: (Boolean) -> Unit){
+
+        database.getReference("usersInfo").child(username).child("friends").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val areFriends = snapshot.hasChild(friendUsername)
+                onResult(areFriends)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+                println("Database error: ${error.message}")
+                onResult(false)
+            }
+        })
+
+    }
+
+    fun hasLearnedSpell(username: String, spellKey: String, onResult: (Boolean) -> Unit) {
+
+        database.getReference("usersInfo").child(username).child("spells").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val spellExists = snapshot.hasChild(spellKey)
+                onResult(spellExists)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+                println("Database error: ${error.message}")
+                onResult(false)
+            }
+        })
+    }
+
+    fun hasLearnedPotion(username: String, potionKey: String, onResult: (Boolean) -> Unit) {
+
+        database.getReference("usersInfo").child(username).child("potions").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val potionExists = snapshot.hasChild(potionKey)
+                onResult(potionExists)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+                println("Database error: ${error.message}")
+                onResult(false)
+            }
+        })
     }
 
     fun addLearnedPotion(username: String, potionkey: String): CompletableFuture<Boolean> {
