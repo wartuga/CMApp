@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,9 +49,7 @@ import com.cmapp.model.data.DataBaseHelper.getProfile
 import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.data.addLearnedSpell
 import com.cmapp.model.data.getSpellAsync
-import com.cmapp.model.data.getWandsFront
 import com.cmapp.model.data.toUpperCase
-import com.cmapp.model.domain.database.Profile
 import com.cmapp.model.domain.database.Spell
 import com.cmapp.ui.screens.utils.ScreenSkeleton
 import kotlinx.coroutines.delay
@@ -75,18 +72,24 @@ fun MovementScreen(
 @Composable
 private fun MovementScreenContent(modifier: Modifier, navController: NavHostController?, context: Context?, spellKey: String) {
 
+
+
+    val configuration = LocalConfiguration.current
+
     var imageRotationAngle by remember { mutableFloatStateOf(0f) }
     var wandDirection by remember { mutableStateOf("up") }
     var lastWandDirection by remember { mutableStateOf(wandDirection) }
     var lastTimestamp by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var moveColor by remember { mutableStateOf(Color.White) }
 
+    var lastValueX by remember { mutableFloatStateOf(0F) }
     var positionX by remember { mutableFloatStateOf(0F) }
 
     var wand by remember { mutableStateOf<String>("") }
     getProfile(getUsername(context!!)){ profileDb ->
         wand = profileDb.wandFront!!
     }
+
 
     var spell by remember { mutableStateOf(Spell()) }
     var previousMove: String? by remember { mutableStateOf(null) }
@@ -98,6 +101,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
         // Initialize SensorManager and Sensor
         LaunchedEffect(Unit) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
             val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
             var pivotAngle: Float? = null
 
@@ -133,12 +137,38 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
             }
 
             // SensorEventListener to update the image X position
+            val accelerometerListener = object: SensorEventListener {
+                val screenSize = configuration.screenWidthDp
+                val imageSize = 32
+                override fun onSensorChanged(event: SensorEvent?) {
+                    if (event != null && event.sensor.type == Sensor.TYPE_ACCELEROMETER){
+                        val sensorX = event.values[0]
+                        // sensorX > 0 -> right; sensorX < 0 -> left
+
+                        if (lastValueX != sensorX){
+                            positionX += sensorX * 10
+                            lastValueX = sensorX
+
+                            // limits the position of the image between 0px and (screen size - image size)px
+                            positionX = positionX.coerceIn(0F, (screenSize - imageSize).toFloat())
+                        }
+                    }
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+            }
 
             // Register listeners
             // Rotation Vector
             sensorManager.registerListener(
                 rotationListener,
                 rotationSensor,
+                SensorManager.SENSOR_DELAY_UI
+            )
+            // Accelerometer
+            sensorManager.registerListener(
+                accelerometerListener,
+                accelerometer,
                 SensorManager.SENSOR_DELAY_UI
             )
         }
@@ -156,7 +186,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
             Log.d("spell", spell.toString())
             var time = 0    // time in milliseconds
             val spellTime = spell.time!! * 1000
-            while (i < spell.movements.size) {
+            while (i <= spell.movements.size) {
                 delay(100) // Check every 100ms
                 time += 100
                 val currentTime = System.currentTimeMillis()
@@ -184,7 +214,7 @@ private fun MovementScreenContent(modifier: Modifier, navController: NavHostCont
                     } else {
                         Toast.makeText(context, "You learned a new spell", Toast.LENGTH_LONG).show()
                         val username: String = getUsername(context)
-                        addLearnedSpell(username, spellKey)
+                        addLearnedSpell(username, spellKey, spell.name!!)
                         navController?.popBackStack()
                         break
                     }

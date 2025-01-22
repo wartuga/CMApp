@@ -84,29 +84,18 @@ suspend fun getSpellAsync(spellKey: String): Spell? {
     }
 }
 
-fun addLearnedSpell(username: String, spellKey: String): Boolean {
+fun addLearnedSpell(username: String, spellKey: String, spellName: String): CompletableFuture<Boolean> {
 
-    val completableFuture1 = CompletableFuture<Boolean>()
-    val completableFuture2 = CompletableFuture<Boolean>()
-    var spell = Spell()
+    val completableFuture = CompletableFuture<Boolean>()
 
     database.getReference("usersInfo").child(username).child("spells").setValue(spellKey)
         .addOnCompleteListener { task ->
 
-        if (task.isSuccessful) { completableFuture1.complete(true) }
-        else { completableFuture1.complete(false) }
+        if (task.isSuccessful) { completableFuture.complete(true) }
+        else { completableFuture.complete(false) }
     }
 
-    getSpell(spellKey) { spell = it }
-
-    database.getReference("notifications").child(username).setValue(spell)
-        .addOnCompleteListener { task ->
-
-        if (task.isSuccessful) { completableFuture2.complete(true) }
-        else { completableFuture2.complete(false) }
-    }
-
-    val completableFuture = completableFuture1.get() && completableFuture2.get()
+    database.getReference("notifications").child(username).child(spellName).setValue("")
 
     return completableFuture
 }
