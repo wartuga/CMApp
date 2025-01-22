@@ -17,6 +17,9 @@ import com.cmapp.ui.screens.social.LearnedPotionsScreen
 import com.cmapp.ui.screens.social.LearnedSpellsScreen
 import com.cmapp.ui.screens.spells.LearningScreen
 import com.cmapp.ui.screens.spells.PracticingScreen
+import com.cmapp.ui.screens.potions.ColorCheckerScreen
+import com.google.gson.Gson
+import kotlinx.serialization.json.Json
 
 @Composable
 fun NavGraph(
@@ -80,6 +83,10 @@ fun NavGraph(
         }
         composable(route = Screens.WandProfile.route) {
             WandSelectionScreen(navController = navController, context = context)
+        }
+        composable(route = Screens.ColorChecker.route + "?potionColor={potionColor}") { navBackStack ->
+            val potionColor: String = navBackStack.arguments?.getString("potionColor").toString()
+            ColorCheckerScreen(navController = navController, context = context, potionColor = potionColor)
         }
     }
 }

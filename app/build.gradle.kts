@@ -54,10 +54,22 @@ android {
 }
 
 dependencies {
+    //Color checking
+    implementation ("androidx.camera:camera-core:1.3.0")
+    implementation ("androidx.camera:camera-lifecycle:1.3.0")
+    implementation ("androidx.camera:camera-view:1.3.0")
+    implementation ("androidx.activity:activity-compose:1.8.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
+
 
     // Maps SDK for Android
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("com.google.maps.android:maps-compose:1.0.0")
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.5.0")
+    implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
+
     // Navigation dependency
     implementation("androidx.navigation:navigation-compose:2.7.6")
 
@@ -90,6 +102,7 @@ dependencies {
     //implementation("com.google.firebase:firebase-messaging:23.1.2")
     implementation("com.firebaseui:firebase-ui-database:8.0.2")
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.play.services.location)
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
