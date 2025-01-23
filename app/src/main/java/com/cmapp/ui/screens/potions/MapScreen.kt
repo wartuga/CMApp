@@ -15,10 +15,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -38,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +52,7 @@ import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.getPotion
 import com.cmapp.model.data.addLocationByIngredient
 import com.cmapp.model.data.getLocationsByIngredient
+import com.cmapp.model.data.toUpperCase
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.navigation.Screens
 import com.cmapp.ui.screens.utils.ScreenSkeleton
@@ -74,8 +80,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
-const val TITLE_SIZE = 28
-const val FONT_SIZE = 20
+const val TITLE_SIZE = 36
+const val FONT_SIZE = 32
 //const val MAP_SIZE = 330 //It takes up the remaining space in the screen now
 const val PADDING = 5
 
@@ -180,15 +186,18 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
         }
     }
 
-        Column(
-        modifier = modifier.fillMaxSize().fillMaxHeight(),
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = modifier.fillMaxSize().fillMaxHeight().verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        Spacer(modifier = modifier.height(23.dp))
         Row(modifier = modifier.padding(PADDING.dp)) {
             potion.name?.let {
                 Text(
-                    text = it,
+                    text = toUpperCase(it),
                     color = Color.White,
                     fontSize = TITLE_SIZE.sp
                 )
@@ -199,15 +208,18 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 Text(
                     text = it,
                     color = Color.White,
-                    fontSize = FONT_SIZE.sp
+                    fontSize = FONT_SIZE.sp,
+                    modifier = Modifier.padding(horizontal = 11.dp),
+                    textAlign = TextAlign.Center
                 )
             }
         }
+        Spacer(modifier = modifier.height(11.dp))
         Row(modifier = modifier.padding(PADDING.dp)) {
            potionColor?.let {
                 Text(
                     text = "Color: $it",
-                    color = Color.White,
+                    color = getColorFromName(it)!!,
                     fontSize = FONT_SIZE.sp
                 )
             }
@@ -232,6 +244,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 }
             }
         }
+        Spacer(modifier = modifier.height(11.dp))
         Row(modifier = modifier.padding(PADDING.dp)) {
             Text(
                 text = "You may find them in these places",
@@ -239,7 +252,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 fontSize = FONT_SIZE.sp
             )
         }
-        Row(modifier = modifier.padding(PADDING.dp).weight(1f) ) {
+        Row(modifier = modifier.padding(PADDING.dp) ) {
             //val context = LocalContext.current
             var uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
             var mapProperties by remember {
@@ -265,8 +278,10 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
 //            }
             GoogleMap(
                 modifier = Modifier
-                    .weight(1f) // Takes remaining vertical space (doesnt fill to the bottom anymore)
-                    .fillMaxWidth(),//.height(MAP_SIZE.dp),//.fillMaxSize(),
+                    .height(350.dp) // Takes remaining vertical space (doesnt fill to the bottom anymore)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                ,//.height(MAP_SIZE.dp),//.fillMaxSize(),
                 properties = mapProperties,
                 uiSettings = uiSettings,
                 cameraPositionState = cameraPositionState
@@ -323,11 +338,14 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
                 }
             }
         }
+        Spacer(modifier = modifier.height(11.dp))
         Row(modifier = modifier.padding(PADDING.dp)) {
             Text(
                 text = "Mix them in the cauldron until you achieve the right color",
                 color = Color.White,
-                fontSize = FONT_SIZE.sp
+                fontSize = FONT_SIZE.sp,
+                modifier = Modifier.padding(horizontal = 11.dp),
+                textAlign = TextAlign.Center
             )
         }
         Row(modifier = modifier.padding(PADDING.dp)) {
@@ -358,7 +376,7 @@ private fun MapScreenContent(modifier: Modifier, navController: NavHostControlle
             ) {
                 Text(
                     text = "Validate", color = Color.White, style = TextStyle(
-                        fontSize = 24.sp,
+                        fontSize = 34.sp,
                         fontFamily = FontFamily(Font(resId = R.font.harry)),
                         color = Color.White
                     )

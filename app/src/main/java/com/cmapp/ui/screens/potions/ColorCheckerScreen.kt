@@ -2,6 +2,7 @@ package com.cmapp.ui.screens.potions
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -84,7 +85,8 @@ fun CameraCaptureContent(
             },
             modifier = Modifier
                 .padding(bottom = 40.dp)
-                .align(Alignment.Start),
+                .align(Alignment.Start)
+                .offset(x = 16.dp),
             border = BorderStroke(1.dp, Color.White)
         ) {
             Text("Back")
@@ -101,7 +103,7 @@ fun CameraCaptureContent(
 //        }
 
         if (dominantColor != null) {
-            Text(text = "Your potion's color:", fontSize = 30.sp)
+            Text(text = "Your potion's color:", fontSize = 32.sp)
             //Display
                 Box(
                     modifier = Modifier
@@ -111,7 +113,7 @@ fun CameraCaptureContent(
                 )
                 //Text(text = "Dominant Color: $dominantColor")
 
-                Text(text = "How your potion should look like:", fontSize = 30.sp)
+                Text(text = "How your potion should look like:", fontSize = 32.sp)
                 Box(
                     modifier = Modifier
                         .size(150.dp)
@@ -133,7 +135,7 @@ fun CameraCaptureContent(
 
         Spacer(modifier = Modifier.height(16.dp))
         if(validatedColor){
-            Text(text = "Good job! Go on and learn new potions.", fontSize = 30.sp)
+            Text(text = "Good job!", fontSize = 32.sp)
             if(context!= null){
                 val username: String = getUsername(context)
                 addLearnedPotion(username, potionColorName)
@@ -141,6 +143,7 @@ fun CameraCaptureContent(
 
             Button(
                 onClick = {
+                    Toast.makeText(context, "You learned a new potion", Toast.LENGTH_LONG).show()
                     navController!!.navigate(Screens.LearnPotions.route)
                 },
                 modifier = Modifier
@@ -153,7 +156,7 @@ fun CameraCaptureContent(
             ) {
                 Text(
                     text = "Learn new potion", color = Color.White, style = TextStyle(
-                        fontSize = 24.sp,
+                        fontSize = 32.sp,
                         fontFamily = FontFamily(Font(resId = R.font.harry)),
                         color = Color.White
                     )

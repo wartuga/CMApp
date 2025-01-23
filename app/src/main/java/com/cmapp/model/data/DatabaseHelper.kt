@@ -502,7 +502,6 @@ object DataBaseHelper {
         return completableFuture
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun getLearnedPotions(username: String, onResult: (List<Potion>) -> Unit) {
 
         CoroutineScope(Dispatchers.IO).launch {
