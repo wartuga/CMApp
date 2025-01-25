@@ -1,7 +1,6 @@
 package com.cmapp.model.data
 
 import android.content.Context
-import android.content.SharedPreferences
 
 object StorageHelper {
 

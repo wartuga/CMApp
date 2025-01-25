@@ -10,7 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val BASE_URL = "https://api.unsplash.com/"
-private val ACCESS_KEY = System.getenv("UNSPLASH_ACCESS_KEY") // N6PmpCc4iQSe5C3--iVYPsezEqgsC0ibvRZAWchEf7U
+private val ACCESS_KEY = System.getenv("UNSPLASH_ACCESS_KEY")?.toString() ?: throw IllegalArgumentException("Invalid Unsplash Access Ley")
 
 val client = OkHttpClient.Builder()
     .addInterceptor { chain ->
@@ -39,7 +39,7 @@ interface UnsplashApiService {
     // profile pictures
     @GET("/search/photos")
     suspend fun getProfileImages(
-        @Query("client_id") apiKey: String = "N6PmpCc4iQSe5C3--iVYPsezEqgsC0ibvRZAWchEf7U",
+        @Query("client_id") apiKey: String = ACCESS_KEY,
         @Query("query") query: String = "Harry+Potter",
     ): UnsplashData
 }

@@ -2,11 +2,9 @@ package com.cmapp.model.data
 
 import android.net.Uri
 import android.util.Log
-import com.cmapp.R
 import com.cmapp.model.data.DataBaseHelper.database
 import com.cmapp.model.domain.database.Potion
 import com.cmapp.model.domain.database.Profile
-import com.cmapp.model.domain.database.Spell
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -19,7 +17,6 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext

@@ -1,9 +1,6 @@
 package com.cmapp.model.data
 
-import com.cmapp.R
-import com.cmapp.model.data.StorageHelper.getUsername
 import com.cmapp.model.domain.database.Profile
-import java.lang.Math.random
 import java.util.Locale
 
 const val MIN_USERNAME_LEN = 3
